@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { Alert, Text, View } from "react-native";
 
-import ReloadButton from "../../shared/ui/ReloadButton/ReloadButton";
 import SearchInput from "../../shared/ui/SearchInput/SearchInput";
-import Tag from "../../shared/ui/Tag/Tag";
 
 import { useGetRegions } from "../../hooks/useGetRegions";
 
@@ -19,10 +17,14 @@ function HeaderExplore({
     loadingIndicator,
     setLoadingIndicator
 }) {
-    const [reloadKey, setReloadKey] = useState(0);
     const [allCountries, setAllCountries] = useState([]);
 
-    const { data, loading } = useGetRegions(reloadKey, setReloadKey, setLoadingIndicator);
+    const { data, loading, error } = useGetRegions(setLoadingIndicator);
+
+    if (error) {
+        Alert.alert("Oops... Something went wrong.", "Please try again in a moment.");
+        return null;
+    }
 
     const destinationData = data?.filter(item =>
         ["US", "FR", "GB", "DE", "JP", "TH"].includes(item.country_iso2)
@@ -56,18 +58,10 @@ function HeaderExplore({
 
     return (
         <View style={{ width: '100%' }}>
-            <ReloadButton
-                countContry={data.length - 17}
-                onPress={() => setReloadKey(prev => prev + 1)}
-            />
             <SearchInput
                 value={searchCountry}
                 onChangeText={filterContries}
             />
-            <View style={{ flexDirection: "row", gap: 10, alignSelf: "flex-start" }}>
-                <Tag title={`${data.length - 17} Countries`} type="country" />
-                <Tag title="Live Data" type="wifi" />
-            </View>
             {!loadingIndicator && !isSearch ?
                 <View style={{ marginBottom: 25 }}>
                     <Text style={{ fontSize: 17, fontWeight: '600', marginTop: 25 }}>Popular Destinations</Text>

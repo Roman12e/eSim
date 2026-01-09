@@ -1,7 +1,7 @@
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { useLayoutEffect } from "react";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import { ActivityIndicator, Alert, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useGetProducts } from "../../../hooks/useGetProducts";
@@ -9,13 +9,18 @@ import { useGetProducts } from "../../../hooks/useGetProducts";
 import CountryLabel from "../../../shared/ui/CountryLabel/CountryLabel";
 
 
-function RegionCountries() {
+export default function RegionCountries() {
     const { params } = useRoute();
 
     const router = useRouter();
     const navigation = useNavigation();
 
-    const { data, loading } = useGetProducts(0, 0, params.countryName);
+    const { data, loading, error } = useGetProducts(params.countryName);
+
+    if (error) {
+        Alert.alert("Oops... Something went wrong.", "Please try again in a moment.");
+        return null;
+    }
 
     useLayoutEffect(() => {
         navigation.setOptions({ title: params.countryName })
@@ -23,7 +28,7 @@ function RegionCountries() {
 
     if (loading) {
         return (
-            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+            <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: 'white' }}>
                 <ActivityIndicator size="large" />
             </View>
         );
@@ -60,7 +65,6 @@ function RegionCountries() {
                     {countriesArr.map(country => {
                         const isoCode = country.country_iso2.toLowerCase();
                         const countryName = country.country_name;
-
                         return (
                             <CountryLabel
                                 key={isoCode}
@@ -84,7 +88,3 @@ function RegionCountries() {
     );
 
 }
-
-
-
-export default RegionCountries;

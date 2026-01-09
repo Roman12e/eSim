@@ -1,6 +1,6 @@
 import { useNavigation, useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import AuthButton from "../../shared/ui/AuthButton/AuthButton";
@@ -22,10 +22,17 @@ function RegisterScreen() {
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+
     const [isError, setIsError] = useState(false);
+    const [errorMsg, setErrorMsg] = useState('');
 
     const handleLogin = async () => {
-        if (email === "" || password === "" || name === "" || confirmPassword === "" || password !== confirmPassword) {
+        if (email === "" || password === "" || name === "" || confirmPassword === "") {
+            setErrorMsg('Please fill in all fields.')
+            setIsError(true);
+            return;
+        } else if (password !== confirmPassword) {
+            setErrorMsg("Your password fields aren't the same")
             setIsError(true);
             return;
         }
@@ -48,7 +55,7 @@ function RegisterScreen() {
                     break;
                 default:
                     Alert.alert("Error", "An error occurred during registration.");
-                    console.log("Произошла ошибка:", response.error.code);
+                    console.log("Произошла ошибка:", response.error);
                     break;
             }
             return;
@@ -64,36 +71,40 @@ function RegisterScreen() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-                <Icon name="user-plus" size={50} />
-                <View style={{ marginTop: 30, alignItems: 'center', gap: 8 }}>
-                    <Text style={styles.headerTitle}>Create Account</Text>
-                    <Text style={styles.subHeader}>Sign up to get started with travel eSIMs</Text>
-                </View>
-                {!isError ? null : <ErrorMessage message="Please fill in all fields." />}
-                <AuthInputForm
-                    email={email}
-                    setEmail={setEmail}
-                    password={password}
-                    setPassword={setPassword}
-                    confirmPassword={confirmPassword}
-                    setConfirmPassword={setConfirmPassword}
-                    name={name}
-                    setName={setName}
-                    isLogin={false}
-                />
-                <AuthButton title={"Sign Up"} onPress={handleLogin} />
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBlock: 30 }}>
-                    <View style={{ flex: 1, height: 1, backgroundColor: '#eeeeee' }} />
-                    <Text style={{ color: '#a6a7ab' }}>Or</Text>
-                    <View style={{ flex: 1, height: 1, backgroundColor: '#eeeeee' }} />
-                </View>
-                <TextButton
-                    title="Already have an account? "
-                    paintedTitle="Sign In"
-                    onPress={() => { navigation.navigate('login') }}
-                />
-            </ScrollView>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            >
+                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+                    <Icon name="user-plus" size={50} />
+                    <View style={{ marginTop: 30, alignItems: 'center', gap: 8 }}>
+                        <Text style={styles.headerTitle}>Create Account</Text>
+                        <Text style={styles.subHeader}>Sign up to get started with travel eSIMs</Text>
+                    </View>
+                    {!isError ? null : <ErrorMessage message={errorMsg} />}
+                    <AuthInputForm
+                        email={email}
+                        setEmail={setEmail}
+                        password={password}
+                        setPassword={setPassword}
+                        confirmPassword={confirmPassword}
+                        setConfirmPassword={setConfirmPassword}
+                        name={name}
+                        setName={setName}
+                        isLogin={false}
+                    />
+                    <AuthButton title={"Sign Up"} onPress={handleLogin} />
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBlock: 30 }}>
+                        <View style={{ flex: 1, height: 1, backgroundColor: '#eeeeee' }} />
+                        <Text style={{ color: '#a6a7ab' }}>Or</Text>
+                        <View style={{ flex: 1, height: 1, backgroundColor: '#eeeeee' }} />
+                    </View>
+                    <TextButton
+                        title="Already have an account? "
+                        paintedTitle="Sign In"
+                        onPress={() => { navigation.navigate('login') }}
+                    />
+                </ScrollView>
+            </KeyboardAvoidingView>
         </SafeAreaView>
     );
 }

@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 
-function ExploreLayout() {
+export default function ExploreLayout() {
     return (
         <Stack>
             <Stack.Screen
@@ -35,6 +35,3 @@ function ExploreLayout() {
         </Stack>
     );
 }
-
-
-export default ExploreLayout;

@@ -1,7 +1,7 @@
 import { useRoute } from "@react-navigation/native";
 import { useNavigation } from "expo-router";
-import { useLayoutEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { useLayoutEffect } from "react";
+import { ActivityIndicator, Alert, StyleSheet, Text, View } from "react-native";
 import CountryFlag from "react-native-country-flag";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -11,22 +11,24 @@ import { ScrollView } from "react-native";
 import { useGetProducts } from "../../../hooks/useGetProducts";
 
 
-
-function ListSim() {
+export default function ListSim() {
     const { params } = useRoute();
     const navigation = useNavigation();
 
-    const [reloadKey, setReloadKey] = useState(0);
+    const { data, loading, error } = useGetProducts(params.countryName);
 
-    const { data, loading, error } = useGetProducts(reloadKey, setReloadKey, params.countryName);
+    if (error) {
+        Alert.alert("Oops... Something went wrong.", "Please try again in a moment.");
+        return null;
+    }
 
     useLayoutEffect(() => {
         navigation.setOptions({ title: params.countryName })
     }, [navigation]);
 
     if (!data) {
-        return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <ActivityIndicator size={100} />
+        return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
+            <ActivityIndicator size="large" />
         </View>
     }
 
@@ -63,6 +65,3 @@ const styles = StyleSheet.create({
         marginBottom: 20
     }
 })
-
-
-export default ListSim;

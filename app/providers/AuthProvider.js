@@ -15,9 +15,6 @@ function AuthProvider({ children }) {
             const response = await supabase.auth.signUp({
                 email,
                 password,
-                options: {
-                    data: { name }
-                }
             });
             const { data, error } = response;
 
@@ -27,6 +24,22 @@ function AuthProvider({ children }) {
             // Пользователь уже существует
             if (data.user && data.user.identities.length === 0) {
                 return { exists: true, user: null, error: null, data };
+            }
+            if (data.user) {
+                const { error } = await supabase.from('users').insert({
+                    id: data.user.id,
+                    name,
+                    email,
+                    currency: 'eur',
+                    language: "English",
+                    payment_methods: JSON.stringify({}),
+                    purchase_history: JSON.stringify({}),
+                    sims: JSON.stringify({}),
+                });
+
+                if (error) {
+                    console.log('INSERT ERROR:', error);
+                }
             }
 
             // Новый пользователь
@@ -56,7 +69,7 @@ function AuthProvider({ children }) {
     const signOut = async () => {
         setIsLoading(true)
         try {
-            const response = await supabase.auth.signOut();
+            await supabase.auth.signOut();
         } catch (error) {
             console.log(error.message);
         } finally {
@@ -66,9 +79,11 @@ function AuthProvider({ children }) {
 
     useEffect(() => {
         const getUser = async () => {
-            const { data } = await supabase.auth.getUser();
+            const { data, error } = await supabase.auth.getUser();
             setUser(data.user || null);
             setIsLoading(false);
+
+            if (error) return null;
         };
         getUser();
 

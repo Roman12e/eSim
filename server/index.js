@@ -340,7 +340,7 @@ app.post("/get-simcard-detail", async (req, res) => {
 });
 
 
-const PORT = process.env.PORT || 4242;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`Stripe server running on http://localhost:${PORT}`);
 });

@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 
-function LoginLayout() {
+export default function LoginLayout() {
     return (
         <Stack
             screenOptions={{
@@ -10,6 +10,3 @@ function LoginLayout() {
         />
     );
 }
-
-
-export default LoginLayout;

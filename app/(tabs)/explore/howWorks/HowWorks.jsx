@@ -2,124 +2,235 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
 import { useStripe } from "@stripe/stripe-react-native";
 import * as Linking from "expo-linking";
-import { useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import CountryFlag from "react-native-country-flag";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { useNavigation } from "@react-navigation/native";
 import { useGetProducts } from "../../../hooks/useGetProducts";
-import { stepData } from "./const/constants";
+import { useUser } from "../../../hooks/useUser";
 
 import BuyButton from "../../../shared/ui/BuyButton/BuyButton";
 import Step from "../../../shared/ui/Step/Step";
 
+import { stepData } from "./const/constants";
 
-const fetchPaymentSheetParams = async (amount) => {
-    return fetch('/api/payment-sheet', {
+
+const getServerUrl = () => {
+    return `https://esimserver.onrender.com`;
+};
+
+const fetchPaymentSheetParams = async (countryData, currency, userId, planId) => {
+    const url = `${getServerUrl()}/payment-sheet`;
+    const res = await fetch(url, {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ amount }),
-    }).then((res) => res.json());
-}
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ countryData, currency, userId, planId }),
+    });
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Failed to fetch payment sheet params: ${text}`);
+    }
+    return res.json();
+};
 
-
-function PlanDetails() {
+export default function PlanDetails() {
     const { params } = useRoute();
-    const navigation = useNavigation();
     const { initPaymentSheet, presentPaymentSheet } = useStripe();
-    const [loading, setLoading] = useState(false);
+    const navigation = useNavigation();
+
+    const [initializing, setInitializing] = useState(true);
+    const [sheetReady, setSheetReady] = useState(false);
+    const [isPaying, setIsPaying] = useState(false);
+    const [paymentIntentId, setPaymentIntentId] = useState(null);
 
     const { data } = useGetProducts(0, 0, params.countryName);
-    const planId = Number(params.id);
+    const { user, setUser } = useUser();
 
-    const countryData = data?.find(item => item.id === planId);
+    const planId = Number(params.id);
+    const countryData = data?.find((item) => item.id === planId);
+
+    const price = (countryData?.price * 1.5).toFixed(2);
+    console.log(countryData);
 
     useEffect(() => {
-        const initializePaymentSheet = async () => {
-            const { paymentIntent, ephemeralKey, customer } = await fetchPaymentSheetParams(countryData?.price);
+        if (!countryData || !user) return;
 
-            const { error } = await initPaymentSheet({
-                merchantDisplayName: "Expo, Inc.",
-                customerId: customer,
-                customerEphemeralKeySecret: ephemeralKey,
-                paymentIntentClientSecret: paymentIntent,
-                allowsDelayedPaymentMethods: true,
-                defaultBillingDetails: {
-                    name: "Jane Doe",
-                    email: "jenny.rosen@example.com",
-                    phone: "888-888-8888"
-                },
-                returnURL: Linking.createURL("stripe-redirect"),
-                applePay: {
-                    merchantCountryCode: "US"
-                },
-            });
-            if (!error) {
-                setLoading(true);
+        let isMounted = true;
+
+        const initializePaymentSheet = async () => {
+            try {
+                setInitializing(true);
+
+                const {
+                    paymentIntentClientSecret,
+                    paymentIntentId,
+                    ephemeralKey,
+                    customer,
+                } = await fetchPaymentSheetParams(
+                    countryData,
+                    user.currency,
+                    user.id,
+                    planId
+                );
+
+                if (!isMounted) return;
+
+                const { error } = await initPaymentSheet({
+                    merchantDisplayName: "The Best eSIM",
+                    customerId: customer,
+                    customerEphemeralKeySecret: ephemeralKey,
+                    paymentIntentClientSecret,
+                    allowsDelayedPaymentMethods: true,
+                    defaultBillingDetails: {
+                        name: user.name,
+                        email: user.email,
+                    },
+                    returnURL: Linking.createURL("stripe-redirect"),
+                });
+
+                if (error) throw new Error(error.message);
+
+                setPaymentIntentId(paymentIntentId);
+                setSheetReady(true);
+            } catch (e) {
+                Alert.alert("Oops... Something went wrong.", "Please try again in a moment.");
+                console.log(e.message);
+            } finally {
+                isMounted && setInitializing(false);
             }
         };
+
         initializePaymentSheet();
-    }, [])
+
+        return () => {
+            isMounted = false;
+        };
+    }, [countryData, user?.id]);
 
 
     const openPaymentSheet = async () => {
-        const { error } = await presentPaymentSheet();
-
-        if (error) {
-            Alert.alert("Error");
-            console.log(error);
-
-        } else {
-            Alert.alert("Success", "Your order is confirmed!")
+        if (!sheetReady || !paymentIntentId) {
+            Alert.alert("Payment not ready");
+            return;
         }
+
+        try {
+            setIsPaying(true);
+
+            const { error } = await presentPaymentSheet();
+            if (error) {
+                Alert.alert("Payment failed", "", [
+                    {
+                        text: "Ok",
+                        onPress: () => navigation.goBack()
+                    }
+                ]);
+                return;
+            }
+
+            const res = await fetch(`${getServerUrl()}/confirm-payment`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    paymentIntentId,
+                    userId: user.id,
+                }),
+            });
+
+            const result = await res.json();
+
+            if (!result || result.error) {
+                Alert.alert("Error", "Please try again later.", [
+                    {
+                        text: "Ok",
+                        onPress: () => navigation.goBack()
+                    }
+                ]);
+                return;
+            }
+
+            setUser(prev => ({
+                ...prev,
+                sims: [...(prev.sims || []), data.esim],
+            }));
+
+            Alert.alert("Success", "To install eSims, just go to MyEsims and click to eSim label");
+        } catch (e) {
+            console.error(e);
+            Alert.alert("Error", "Payment error occurred");
+        } finally {
+            setIsPaying(false);
+        }
+    };
+
+    if (isPaying) {
+        return (
+            <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "white" }}>
+                <ActivityIndicator size="large" />
+                <Text style={{ color: '#707175', marginTop: 10 }}>Processing payment…</Text>
+            </View>
+        );
+    }
+
+    if (initializing || !countryData) {
+        return (
+            <SafeAreaView style={styles.centered}>
+                <ActivityIndicator size="large" />
+            </SafeAreaView>
+        );
     }
 
     return (
-        <SafeAreaView style={{ backgroundColor: 'white', flex: 1, paddingHorizontal: 20 }} edges={['left', 'right']}>
-            {data && countryData ? <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ marginTop: 20 }}>
+        <SafeAreaView style={styles.container} edges={['left', 'right']}>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ marginTop: 30 }}>
                 <View style={styles.headerContainer}>
-                    <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+                    <View style={styles.row}>
                         <Text style={{ fontSize: 20, fontWeight: '600' }}>{countryData.name}</Text>
-                        <CountryFlag isoCode={countryData.product_coverage.country_iso2} size={15} />
+                        <CountryFlag isoCode={countryData?.product_coverage?.country_iso2} size={15} />
                     </View>
-                    <Text style={{ fontSize: 15, color: '#707175', marginTop: 5 }}>{countryData.product_coverage.country_name} eSim</Text>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
-                        <Text style={{ fontSize: 25, fontWeight: '700', marginTop: 20 }}>{countryData.volume >= 1024 ? countryData.volume / 1024 + " GB" : countryData.volume + " MB"}</Text>
-                        <Text style={{ fontSize: 25, fontWeight: '700', color: '#2565e9', marginTop: 15 }}>${countryData.price}</Text>
+                    <Text style={{ fontSize: 15, color: '#707175', marginTop: 5 }}>
+                        {countryData.product_coverage.country_name} eSim
+                    </Text>
+                    <View style={styles.priceRow}>
+                        <Text style={{ fontSize: 25, fontWeight: '700', marginTop: 20 }}>
+                            {countryData.volume >= 1024 ? countryData.volume / 1024 + " GB" : countryData.volume + " MB"}
+                        </Text>
+                        <Text style={styles.price}>€{price}</Text>
                     </View>
                 </View>
-                <Text style={{ fontSize: 18, fontWeight: '600', marginBlock: 15 }}>How it Works</Text>
+                <Text style={styles.sectionTitle}>How it Works</Text>
                 <View style={{ gap: 15 }}>
                     {stepData.map((item, index) => (
-                        <Step
-                            key={index}
-                            index={index}
-                            title={item.title}
-                            desc={item.desc}
-                        />
+                        <Step key={index} index={index} title={item.title} desc={item.desc} />
                     ))}
                 </View>
-                <Text style={{ fontSize: 18, fontWeight: '600', marginTop: 40 }}>Compatible Devices</Text>
+                <Text style={styles.sectionTitle}>Compatible Devices</Text>
                 <View style={styles.containerInfo}>
                     <Ionicons name="checkmark-circle-outline" size={25} color="#08b178" />
-                    <Text numberOfLines={2} style={{ width: '90%' }}>Works with all eSim-compatible iPhone XS and newer</Text>
+                    <Text numberOfLines={2} style={{ width: '90%' }}>
+                        Works with all eSim-compatible iPhone XS and newer
+                    </Text>
                 </View>
-                <BuyButton
-                    amount={countryData.price}
-                    onPress={openPaymentSheet}
-                />
-            </ScrollView> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size={100} />
-            </View>}
+                <BuyButton amount={price} onPress={openPaymentSheet} />
+            </ScrollView>
         </SafeAreaView>
     );
-};
-
+}
 
 const styles = StyleSheet.create({
+    container: {
+        backgroundColor: 'white',
+        flex: 1,
+        paddingHorizontal: 20
+    },
+    centered: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'white'
+    },
     headerContainer: {
         width: '100%',
         paddingVertical: 30,
@@ -127,6 +238,28 @@ const styles = StyleSheet.create({
         backgroundColor: '#f8faf9',
         borderRadius: 20,
         marginBottom: 20
+    },
+    row: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10
+    },
+    priceRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 20
+    },
+    price: {
+        fontSize: 25,
+        fontWeight: '700',
+        color: '#2565e9',
+        marginTop: 15
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        marginTop: 20,
+        marginBottom: 15
     },
     containerInfo: {
         flexDirection: 'row',
@@ -137,8 +270,6 @@ const styles = StyleSheet.create({
         paddingVertical: 20,
         paddingHorizontal: 10,
         marginTop: 10
-    }
-})
+    },
+});
 
-
-export default PlanDetails;

@@ -1,29 +1,37 @@
 {
   "expo": {
-    "name": "TheBesteSIM",
+    "name": "The Best eSIM",
     "slug": "TheBesteSIM",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./logo/Logo.png",
     "scheme": "thebestesim",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "splash": {
+        "image": "./logo/Logo.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#ffffff"
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#ffffff",
+        "foregroundImage": "./logo/Logo.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
       "output": "server",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./logo/Logo.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "94cb62ee-5723-4785-ab96-a8e456ffadd4"
+      }
     },
     "plugins": [
       [
@@ -35,7 +43,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./logo/Logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
@@ -48,18 +56,13 @@
         "@stripe/stripe-react-native",
         {
           "merchantIdentifier": "merchant.esim-app",
-          "publishablekey": "pk_test_51SeyoGPH0upSs0gZtnGKU8km7ATlEt2CwcHj2OKpW4qjaNizetvKSrvGS30IS9vlAB33fzOqE5iahEmQH1UUqDVo005P756QM4"
+          "publishableKey": "pk_test_51SeyoGPH0upSs0gZtnGKU8km7ATlEt2CwcHj2OKpW4qjaNizetvKSrvGS30IS9vlAB33fzOqE5iahEmQH1UUqDVo005P756QM4"
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
-  },
-  "extra": {
-    "eas": {
-      "projectId": "94cb62ee-5723-4785-ab96-a8e456ffadd4"
     }
   }
 }

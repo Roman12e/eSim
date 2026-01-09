@@ -32,8 +32,8 @@ function CountryList({ filteredCountry, isSearch, loadingIndicator }) {
                     />
                 ))
                 : (
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                        <ActivityIndicator size={100} />
+                    <View style={{ flex: 1, marginTop: '50%', alignItems: 'center', backgroundColor: 'white' }}>
+                        <ActivityIndicator size="large" />
                     </View>
                 )}
         </View>

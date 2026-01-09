@@ -30,12 +30,13 @@ const Notifications = ({ toggleSwitchEmail, toggleSwitchPush, isEnabledPush, isE
                     style={{ transform: [{ scaleX: .9 }, { scaleY: .9 }] }}
                 />
             </View>
+            <Text style={{ alignSelf: 'center', color: '#707175', marginTop: 15 }}>This feature is not available yet.</Text>
         </>
     );
 };
 
 
-const LanguageRegion = () => {
+const LanguageRegion = ({ currency }) => {
     return (
         <>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -45,7 +46,7 @@ const LanguageRegion = () => {
             <View style={styles.line} />
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Text style={{ fontSize: 16 }}>Currency</Text>
-                <Text style={{ color: '#707175', fontSize: 15 }}>USD ($)</Text>
+                <Text style={{ color: '#707175', fontSize: 15 }}>{currency.toUpperCase()}</Text>
             </View>
         </>
     );
@@ -67,7 +68,9 @@ function PreferenceSection({ tag, user }) {
                 toggleSwitchPush={toggleSwitchPush}
                 isEnabledEmail={isEnabledEmail}
                 isEnabledPush={isEnabledPush} /> : null}
-            {tag === "lang-region" ? <LanguageRegion /> : null}
+            {tag === "lang-region" ? <LanguageRegion
+                currency={user.currency}
+            /> : null}
         </View>
     );
 };

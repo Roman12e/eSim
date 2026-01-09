@@ -13,7 +13,6 @@ function ExploreScreen() {
     const [loadingIndicator, setLoadingIndicator] = useState(true);
     const [searchCountry, setSearchCountry] = useState("");
 
-
     return (
         <SafeAreaView style={styles.container} edges={['left', 'right']}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ marginTop: 20 }}>

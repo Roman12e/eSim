@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import AuthButton from "../../shared/ui/AuthButton/AuthButton";
@@ -54,34 +54,42 @@ function LoginScreen() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Icon name="earth" isLogin={true} />
-            <View style={{ marginTop: 30, alignItems: 'center', gap: 8 }}>
-                <Text style={styles.headerTitle}>Welcome Back</Text>
-                <Text style={styles.subHeader}>Sign in to access your eSIM plans</Text>
-            </View>
-            {!isError ? null : <ErrorMessage message="Please enter both email and password." />}
-            <AuthInputForm
-                email={email}
-                setEmail={setEmail}
-                password={password}
-                setPassword={setPassword}
-                isLogin={true}
-            />
-            <AuthButton title={"Sign In"} onPress={handleLogin} />
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBlock: 40 }}>
-                <View style={{ flex: 1, height: 1, backgroundColor: '#eeeeee' }} />
-                <Text style={{ color: '#a6a7ab' }}>Or</Text>
-                <View style={{ flex: 1, height: 1, backgroundColor: '#eeeeee' }} />
-            </View>
-            <TouchableOpacity style={styles.buttonBrowse}>
-                <Ionicons name="earth" size={24} color={"#366bef"} />
-                <Text style={styles.buttonBrowseText}>Browse Plans as Guest</Text>
-            </TouchableOpacity>
-            <TextButton
-                title="Don't have an account? "
-                paintedTitle="Sign Up"
-                onPress={() => { navigation.navigate('register') }}
-            />
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            >
+                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+                    <Icon name="earth" isLogin={true} />
+                    <View style={{ marginTop: 30, alignItems: 'center', gap: 8 }}>
+                        <Text style={styles.headerTitle}>Welcome Back</Text>
+                        <Text style={styles.subHeader}>Sign in to access your eSIM plans</Text>
+                    </View>
+                    {!isError ? null : <ErrorMessage message="Please enter both email and password." />}
+                    <AuthInputForm
+                        email={email}
+                        setEmail={setEmail}
+                        password={password}
+                        setPassword={setPassword}
+                        isLogin={true}
+                    />
+                    <AuthButton title={"Sign In"} onPress={handleLogin} />
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBlock: 40 }}>
+                        <View style={{ flex: 1, height: 1, backgroundColor: '#eeeeee' }} />
+                        <Text style={{ color: '#a6a7ab' }}>Or</Text>
+                        <View style={{ flex: 1, height: 1, backgroundColor: '#eeeeee' }} />
+                    </View>
+                    <TouchableOpacity
+                        onPress={() => router.replace('/(tabs)/explore/')}
+                        style={styles.buttonBrowse}>
+                        <Ionicons name="earth" size={24} color={"#366bef"} />
+                        <Text style={styles.buttonBrowseText}>Browse Plans as Guest</Text>
+                    </TouchableOpacity>
+                    <TextButton
+                        title="Don't have an account? "
+                        paintedTitle="Sign Up"
+                        onPress={() => { navigation.navigate('register') }}
+                    />
+                </ScrollView>
+            </KeyboardAvoidingView>
         </SafeAreaView>
     );
 }
@@ -92,7 +100,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         flex: 1,
         paddingTop: '25%',
-        alignItems: 'center',
+    },
+    scrollContent: {
+        flexGrow: 1,
+        width: '100%',
+        alignItems: "center",
+        paddingBottom: 50,
     },
     headerTitle: {
         fontSize: 28,
