@@ -2,19 +2,15 @@ export default {
     expo: {
         name: "The Best eSIM",
         slug: "thebestesim",
-
         ios: {
             bundleIdentifier: "com.roman15e.thebestesim",
             infoPlist: {
                 "ITSAppUsesNonExemptEncryption": false
             }
         },
-        android: {
-            "package": "com.roman15e.thebestesim"
-        },
         extra: {
             eas: {
-                projectId: "d7c88d04-0461-4315-8a0e-93df7a7103d5"
+                "projectId": "7d087733-a8d9-44ad-8322-a78d4242d9ac"
             },
             supabaseUrl: process.env.SUPABASE_URL,
             supabaseKey: process.env.SUPABASE_ANON_KEY
@@ -27,6 +23,7 @@ export default {
                     publishableKey: process.env.EXPO_PUBLIC_STRIPE_PUBLICHABLE_KEY
                 }
             ]
-        ]
+        ],
+        owner: "roman12e"
     }
 };

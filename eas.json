@@ -12,7 +12,11 @@
       "distribution": "internal"
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": false,
+      "ios": {
+        "releaseChannel": "production",
+        "prebuildCommand": "plutil -insert NSCameraUsageDescription -string 'Камера используется для сканирования QR-кодов и активации eSIM.' ios/TheBesteSIM/Info.plist"
+      }
     }
   },
   "submit": {

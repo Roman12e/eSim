@@ -88,6 +88,9 @@ export default function PlanDetails() {
                         email: user.email,
                     },
                     returnURL: Linking.createURL("stripe-redirect"),
+                    applePay: {
+                        merchantCountryCode: "AE"
+                    }
                 });
 
                 if (error) throw new Error(error.message);
