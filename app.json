@@ -17,6 +17,7 @@
       "workflow": "managed",
       "autoProvisioning": true,
       "supportsTablet": true,
+      "buildNumber": "2",
       "infoPlist": {
         "NSCameraUsageDescription": "Камера используется для сканирования QR-кодов и активации eSIM.",
         "NSPhotoLibraryUsageDescription": "Доступ к галерее нужен для выбора изображений.",
@@ -46,6 +47,24 @@
       "favicon": "./logo/Logo.png"
     },
     "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "infoPlist": {
+              "NSCameraUsageDescription": "Камера используется для сканирования QR-кодов и активации eSIM.",
+              "NSPhotoLibraryUsageDescription": "Доступ к галерее нужен для выбора изображений.",
+              "NSFaceIDUsageDescription": "Face ID используется для подтверждения платежей."
+            }
+          }
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Камера используется для сканирования QR-кодов и активации eSIM."
+        }
+      ],
       [
         "expo-router",
         {
