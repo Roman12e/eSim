@@ -2,6 +2,7 @@ export default {
     expo: {
         name: "The Best eSIM",
         slug: "thebestesim",
+        icon: "./logo/Logo.png",
         ios: {
             bundleIdentifier: "com.roman15e.thebestesim",
             infoPlist: {
