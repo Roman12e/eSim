@@ -5,12 +5,15 @@ export default {
         ios: {
             bundleIdentifier: "com.roman15e.thebestesim",
             infoPlist: {
-                "ITSAppUsesNonExemptEncryption": false
+                "ITSAppUsesNonExemptEncryption": false,
+                "NSCameraUsageDescription": "Камера используется для сканирования QR-кодов и активации eSIM.",
+                "NSPhotoLibraryUsageDescription": "Доступ к галерее нужен для выбора изображений.",
+                "NSFaceIDUsageDescription": "Face ID используется для подтверждения платежей."
             }
         },
         extra: {
             eas: {
-                "projectId": "7d087733-a8d9-44ad-8322-a78d4242d9ac"
+                projectId: "6fb6c17d-5b48-440a-9960-487ae35270c7"
             },
             supabaseUrl: process.env.SUPABASE_URL,
             supabaseKey: process.env.SUPABASE_ANON_KEY
