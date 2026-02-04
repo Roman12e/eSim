@@ -4,6 +4,7 @@ export default {
         slug: "thebestesim",
         icon: "./logo/Logo.png",
         ios: {
+            supportsTablet: false,
             bundleIdentifier: "com.roman15e.thebestesim",
             infoPlist: {
                 "ITSAppUsesNonExemptEncryption": false,
