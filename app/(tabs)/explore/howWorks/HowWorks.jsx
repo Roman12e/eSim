@@ -46,13 +46,14 @@ export default function PlanDetails() {
     const [paymentIntentId, setPaymentIntentId] = useState(null);
 
     const { data } = useGetProducts(0, 0, params.countryName);
-    const { user, setUser } = useUser();
+    const { user, refetchUser } = useUser();
 
     const planId = Number(params.id);
     const countryData = data?.find((item) => item.id === planId);
 
     const price = (countryData?.price * 1.5).toFixed(2);
     console.log(countryData);
+
 
     useEffect(() => {
         if (!countryData || !user) return;
@@ -154,10 +155,7 @@ export default function PlanDetails() {
                 return;
             }
 
-            setUser(prev => ({
-                ...prev,
-                sims: [...(prev.sims || []), data.esim],
-            }));
+            await refetchUser();
 
             Alert.alert("Success", "To install eSims, just go to MyEsims and click to eSim label");
         } catch (e) {

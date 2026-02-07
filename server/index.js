@@ -94,9 +94,16 @@ app.post("/confirm-payment", async (req, res) => {
             .from("users")
             .select("sims, purchase_history")
             .eq("id", userId)
-            .single();
+            .maybeSingle();
+
+        console.log("error:", error);
+        console.log("user:", user);
+        console.log("id:", userId);
 
         if (error || !user) {
+            console.log(error);
+            console.log(user);
+
             return res.status(404).json({ error: "User not found" });
         }
 
