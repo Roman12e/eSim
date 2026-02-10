@@ -7,7 +7,7 @@
     "icon": "./logo/Logo.png",
     "scheme": "thebestesim",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "extra": {
       "eas": {
         "projectId": "7d087733-a8d9-44ad-8322-a78d4242d9ac"
@@ -21,11 +21,6 @@
         "NSCameraUsageDescription": "Камера используется для сканирования QR-кодов и активации eSIM.",
         "NSPhotoLibraryUsageDescription": "Доступ к галерее нужен для выбора изображений.",
         "NSFaceIDUsageDescription": "Face ID используется для подтверждения платежей."
-      },
-      "entitlements": {
-        "com.apple.developer.in-app-payments": [
-          "merchant.com.esimApp"
-        ]
       },
       "splash": {
         "image": "./logo/Logo.png",
@@ -86,7 +81,6 @@
       [
         "@stripe/stripe-react-native",
         {
-          "merchantIdentifier": "merchant.com.esimApp",
           "publishableKey": "pk_test_51SmySfRvUt27CNLNGekbnMs83YpmzI1IqzYM0cRXyEooYNbv90I5IMsfP2ymLO5vrz4U4HVdQ7EhHYYi7F2ranpM002G160wfc"
         }
       ]

@@ -24,8 +24,7 @@ export default {
             [
                 "@stripe/stripe-react-native",
                 {
-                    merchantIdentifier: process.env.MERCHANT_IDENTIFIER,
-                    publishableKey: process.env.EXPO_PUBLIC_STRIPE_PUBLICHABLE_KEY
+                    publishableKey: "pk_test_51SmySfRvUt27CNLNGekbnMs83YpmzI1IqzYM0cRXyEooYNbv90I5IMsfP2ymLO5vrz4U4HVdQ7EhHYYi7F2ranpM002G160wfc"
                 }
             ]
         ],
