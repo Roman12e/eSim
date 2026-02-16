@@ -11,7 +11,7 @@ import { useUser } from "../../hooks/useUser";
 
 
 const getServerUrl = () => {
-    return `https://esimserver.onrender.com`;
+    return `http://192.168.0.100:5000`;
 };
 
 const fetchActivate = async (iccid) => {
@@ -28,6 +28,12 @@ const fetchActivate = async (iccid) => {
     return res.json();
 };
 
+const getCountry = (product) => {
+    if (!product?.name) return "Unknown";
+
+    const match = product.name.match(/in (.+)$/);
+    return match ? match[1] : "Unknown";
+};
 
 function MyEsims() {
     const [loadingIndicator, setLoadingIndicator] = useState(false);
@@ -39,7 +45,7 @@ function MyEsims() {
     const navigation = useNavigation();
     const router = useRouter();
 
-    const { user } = useUser();
+    const { user, refetchUser } = useUser();
 
     if (!user) {
         Alert.alert(
@@ -56,24 +62,42 @@ function MyEsims() {
     }
 
     useEffect(() => {
+        const fetchSims = async () => {
+            await refetchUser();
+        }
+        fetchSims();
+    }, [])
+
+    useEffect(() => {
         if (!user?.sims) return;
 
         let mounted = true;
 
         const load = async () => {
             setLoadingIndicator(true);
-            setIsLoaded(false);
-            setUserSims([]);
-            setCountries([]);
 
-            for (const sim of user.sims) {
-                if (!sim?.iccid) continue;
+            try {
+                const sims = user.sims.filter(s => s?.iccid);
 
-                const res = await fetchActivate(sim.iccid);
+                const results = await Promise.allSettled(
+                    sims.map(sim => fetchActivate(sim.iccid))
+                );
+
                 if (!mounted) return;
 
-                setUserSims(prev => [...prev, res]);
-                setCountries(prev => [...prev, sim.product.country]);
+                const success = results
+                    .map((r, i) => r.status === "fulfilled"
+                        ? { data: r.value, country: sims[i].product.country || getCountry(sims[i].product) }
+                        : null
+                    )
+                    .filter(Boolean);
+
+                setUserSims(success.map(s => s.data));
+                setCountries(success.map(s => s.country));
+                console.log(sims[0].product);
+
+            } catch (err) {
+                console.log("SIM load error:", err);
             }
 
             if (mounted) {
@@ -84,7 +108,9 @@ function MyEsims() {
 
         load();
         return () => mounted = false;
-    }, [user?.sims.length]);
+
+    }, [user]);
+
 
     if (!isLoaded || loadingIndicator) {
         return (

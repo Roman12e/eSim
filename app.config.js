@@ -24,6 +24,7 @@ export default {
             [
                 "@stripe/stripe-react-native",
                 {
+                    merchantIdentifier: "merchant.com.esimApp",
                     publishableKey: "pk_test_51SmySfRvUt27CNLNGekbnMs83YpmzI1IqzYM0cRXyEooYNbv90I5IMsfP2ymLO5vrz4U4HVdQ7EhHYYi7F2ranpM002G160wfc"
                 }
             ]

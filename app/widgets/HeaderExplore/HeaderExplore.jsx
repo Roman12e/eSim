@@ -21,11 +21,6 @@ function HeaderExplore({
 
     const { data, loading, error } = useGetRegions(setLoadingIndicator);
 
-    if (error) {
-        Alert.alert("Oops... Something went wrong.", "Please try again in a moment.");
-        return null;
-    }
-
     const destinationData = data?.filter(item =>
         ["US", "FR", "GB", "DE", "JP", "TH"].includes(item.country_iso2)
     ) || [];
@@ -36,6 +31,11 @@ function HeaderExplore({
             setFilteredCountry(data.slice(17));
         }
     }, [loading, data]);
+
+    if (error) {
+        Alert.alert("Oops... Something went wrong.", "Please try again in a moment.");
+        return null;
+    }
 
     if (loading || !data) {
         return null;

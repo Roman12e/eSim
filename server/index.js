@@ -75,54 +75,49 @@ app.post("/payment-sheet", async (req, res) => {
 
 
 app.post("/confirm-payment", async (req, res) => {
+    const { paymentIntentId, userId } = req.body;
+
+    if (!paymentIntentId || !userId) {
+        return res.status(400).json({ error: "Missing params" });
+    }
+
+    let refundNeeded = false;
+
     try {
-        const { paymentIntentId, userId, planId } = req.body;
-
-        if (!paymentIntentId || !userId) {
-            return res.status(400).json({ error: "Missing params" });
-        }
-
         const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
 
-        if (paymentIntent.status !== "succeeded") {
-            throw new Error("Payment not completed");
+        if (!paymentIntent || paymentIntent.status !== "succeeded") {
+            return res.status(400).json({ error: "Payment not completed" });
         }
 
-
-        // Получаем пользователя
-        const { data: user, error } = await supabase
+        const { data: user, error: userError } = await supabase
             .from("users")
             .select("sims, purchase_history")
             .eq("id", userId)
             .maybeSingle();
 
-        console.log("error:", error);
-        console.log("user:", user);
-        console.log("id:", userId);
-
-        if (error || !user) {
-            console.log(error);
-            console.log(user);
-
-            return res.status(404).json({ error: "User not found" });
+        if (userError || !user) {
+            refundNeeded = true;
+            throw new Error("User not found");
         }
 
         const sims = Array.isArray(user.sims) ? user.sims : [];
-
-        const purchase = Array.isArray(user.purchase_history?.payments)
+        const paymentsArray = Array.isArray(user.purchase_history?.payments)
             ? user.purchase_history.payments
             : [];
 
-        // Защита от повторного вызова
         const existingSim = sims.find(
             s => s.payment_intent_id === paymentIntentId
         );
 
         if (existingSim) {
-            return res.json({ success: true, esim: existingSim });
+            return res.json({
+                success: true,
+                status: existingSim.status,
+                esim: existingSim,
+            });
         }
 
-        // Создаём eSIM в BNESIM
         const meta = paymentIntent.metadata;
 
         const formDataAdd = new FormData();
@@ -135,43 +130,37 @@ app.post("/confirm-payment", async (req, res) => {
                 method: "POST",
                 headers: {
                     Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
-                    ...formDataAdd.getHeaders()
+                    ...formDataAdd.getHeaders(),
                 },
                 body: formDataAdd,
             }
         );
 
-        const text = await esimResponse.text();
+        const esimResult = await esimResponse.json();
+        console.log(esimResult);
 
-        console.log("BNESIM RAW RESPONSE:", text);
-
-        let esimResult;
-        try {
-            esimResult = JSON.parse(text);
-        } catch {
-            throw new Error("BNESIM returned non-JSON response");
+        if (!esimResult.success || !esimResult.activationTransaction) {
+            refundNeeded = true;
+            throw new Error("BNESIM creation failed");
         }
 
-        if (!esimResult.success) {
-            throw new Error("BNESIM eSIM activation failed");
-        } else if (!esimResult.activationTransaction) {
-            throw new Error("BNESIM not found activation transaction")
-        }
+        const activationTransaction = esimResult.activationTransaction;
+
+        refundNeeded = false;
 
         let iccid = null;
 
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 5; i++) {
             await new Promise(r => setTimeout(r, 3000));
 
             const formActivate = new FormData();
-            formActivate.append("activationTransaction", esimResult.activationTransaction);
+            formActivate.append("activationTransaction", activationTransaction);
 
             const response = await fetch(
                 "https://api.bnesim.com/v2.0/enterprise/activation-transaction/get-status",
                 {
                     method: "POST",
                     headers: {
-                        Accept: "application/json",
                         Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
                         ...formActivate.getHeaders(),
                     },
@@ -180,7 +169,6 @@ app.post("/confirm-payment", async (req, res) => {
             );
 
             const status = await response.json();
-            console.log(status);
 
             if (status?.success && status.iccid) {
                 iccid = status.iccid;
@@ -188,66 +176,72 @@ app.post("/confirm-payment", async (req, res) => {
             }
         }
 
-        if (!iccid) {
-            throw new Error("eSIM activation timeout");
-        }
-
-        // Обновляем пользователя
         const newSim = {
-            activation_transaction: esimResult.activationTransaction,
-            license_cli: process.env.LICENSE_CLI,
-            iccid,
+            activation_transaction: activationTransaction,
+            iccid: iccid || null,
+            status: iccid ? "active" : "processing",
             isInstall: false,
             product: {
                 product_id: Number(meta.product_id),
                 name: meta.product_name,
                 volume_mb: Number(meta.volume_mb),
                 duration_days: Number(meta.duration_days),
-                country: meta.country
+                country: meta.country,
             },
             payment_intent_id: paymentIntentId,
-            created_at: new Date().toISOString()
+            created_at: new Date().toISOString(),
         };
 
-        const updatedSims = [...sims, newSim];
-
-        const updatedPayments = [
-            ...purchase,
-            {
-                countryTitle: meta.country,
-                payment_intent_id: paymentIntent.id,
-                amount: paymentIntent.amount,
-                currency: paymentIntent.currency,
-                status: "paid",
-                created_at: new Date().toISOString(),
-            },
-        ];
-
-        if (!iccid || !esimResult.success) {
-            console.log("Error", data);
-        }
-
-        await supabase
+        const { error: updateError } = await supabase
             .from("users")
             .update({
-                sims: updatedSims,
+                sims: [...sims, newSim],
                 purchase_history: {
-                    payments: updatedPayments,
+                    payments: [
+                        ...paymentsArray,
+                        {
+                            countryTitle: meta.country,
+                            payment_intent_id: paymentIntentId,
+                            amount: paymentIntent.amount,
+                            currency: paymentIntent.currency,
+                            status: "paid",
+                            created_at: new Date().toISOString(),
+                        },
+                    ],
                 },
             })
             .eq("id", userId);
 
-        // Ответ клиенту
-        res.json({
+        if (updateError) {
+            throw new Error("Database update failed");
+        }
+
+        return res.json({
             success: true,
+            status: newSim.status,
+            message: iccid
+                ? "eSIM activated successfully."
+                : "Your eSIM is being activated. It will appear shortly.",
             esim: newSim,
-            iccid,
-            license_cli: process.env.LICENSE_CLI,
-            paymentIntent
         });
+
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: err.message });
+        console.error("CONFIRM PAYMENT ERROR:", err);
+
+        if (refundNeeded) {
+            try {
+                await stripe.refunds.create({
+                    payment_intent: paymentIntentId,
+                });
+                console.log("Refund completed");
+            } catch (refundError) {
+                console.error("Refund failed:", refundError);
+            }
+        }
+
+        return res.status(500).json({
+            error: "Activation failed. Payment refunded.",
+        });
     }
 });
 

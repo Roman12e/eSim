@@ -50,10 +50,13 @@ export default function UserESim({ data, country, idx }) {
 
     const isInstall = user?.sims[idx]?.isInstall;
 
-    const creditDetails = data.simcardDetails.data_credit_details[country];
+    const creditDetails =
+        data?.simcardDetails?.data_credit_details?.[country];
 
-    // берём первое значение объекта
-    const sim = Object.values(creditDetails)?.[0];
+    const sim =
+        creditDetails && typeof creditDetails === "object"
+            ? Object.values(creditDetails)[0]
+            : null;
 
     if (!sim || !qrcode) return null;
 
@@ -61,7 +64,7 @@ export default function UserESim({ data, country, idx }) {
     const region = sim.region;
     const totalMb = Number(sim.data_total);
     const remainingMb = Number(sim.remaining_mb);
-    const usedMb = totalMb - remainingMb;
+    const usedMb = (totalMb - remainingMb).toFixed(2);
 
     const duration = sim.product?.duration;
     const volumeLabel = sim.product?.formatted_volume;
@@ -71,8 +74,6 @@ export default function UserESim({ data, country, idx }) {
 
     const remainingPercent = Math.round((remainingMb * 100) / totalMb);
     const barColor = remainingPercent > 30 ? "#19b683" : "#d55860";
-
-    console.log(data.simcardDetails)
 
     return (
         <TouchableOpacity

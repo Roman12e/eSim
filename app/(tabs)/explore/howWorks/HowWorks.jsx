@@ -18,7 +18,7 @@ import { stepData } from "./const/constants";
 
 
 const getServerUrl = () => {
-    return `https://esimserver.onrender.com`;
+    return `http://192.168.0.100:5000`;
 };
 
 const fetchPaymentSheetParams = async (countryData, currency, userId, planId) => {
@@ -52,8 +52,6 @@ export default function PlanDetails() {
     const countryData = data?.find((item) => item.id === planId);
 
     const price = (countryData?.price * 1.5).toFixed(2);
-    console.log(countryData);
-
 
     useEffect(() => {
         if (!countryData || !user) return;
@@ -99,7 +97,15 @@ export default function PlanDetails() {
                 setPaymentIntentId(paymentIntentId);
                 setSheetReady(true);
             } catch (e) {
-                Alert.alert("Oops... Something went wrong.", "Please try again in a moment.");
+                Alert.alert(
+                    "Oops... Something went wrong.",
+                    "Please try again in a moment.", [
+                    {
+                        text: "Ok",
+                        onPress: () => navigation.goBack()
+                    }
+                ]
+                );
                 console.log(e.message);
             } finally {
                 isMounted && setInitializing(false);
@@ -124,6 +130,7 @@ export default function PlanDetails() {
             setIsPaying(true);
 
             const { error } = await presentPaymentSheet();
+
             if (error) {
                 Alert.alert("Payment failed", "", [
                     {
@@ -146,25 +153,57 @@ export default function PlanDetails() {
             const result = await res.json();
 
             if (!result || result.error) {
-                Alert.alert("Error", "Please try again later.", [
+                Alert.alert("Error", result?.error || "Something went wrong.", [
                     {
                         text: "Ok",
                         onPress: () => navigation.goBack()
                     }
                 ]);
-                return;
             }
 
-            await refetchUser();
+            if (result.status === "active") {
+                await refetchUser();
 
-            Alert.alert("Success", "To install eSims, just go to MyEsims and click to eSim label");
+                Alert.alert(
+                    "Success 🎉",
+                    "Your eSIM has been activated successfully!",
+                    [
+                        {
+                            text: "OK",
+                            onPress: () => navigation.goBack()
+                        }
+                    ]
+                );
+            }
+
+            if (result.status === "processing") {
+                await refetchUser();
+
+                Alert.alert(
+                    "Activation in progress ⏳",
+                    "Your eSIM is being activated. It will appear shortly in My eSIMs.\n\nThis may take a few time.",
+                    [
+                        {
+                            text: "Go to My eSIMs",
+                            onPress: () => navigation.navigate("MyEsims")
+                        }
+                    ]
+                );
+            }
+
         } catch (e) {
             console.error(e);
-            Alert.alert("Error", "Payment error occurred");
+            Alert.alert("Error", "Payment error occurred", [
+                {
+                    text: "Ok",
+                    onPress: () => navigation.goBack()
+                }
+            ]);
         } finally {
             setIsPaying(false);
         }
     };
+
 
     if (isPaying) {
         return (
@@ -189,7 +228,12 @@ export default function PlanDetails() {
                 <View style={styles.headerContainer}>
                     <View style={styles.row}>
                         <Text style={{ fontSize: 20, fontWeight: '600' }}>{countryData.name}</Text>
-                        <CountryFlag isoCode={countryData?.product_coverage?.country_iso2} size={15} />
+                        {countryData?.product_coverage?.country_iso2 && (
+                            <CountryFlag
+                                isoCode={countryData.product_coverage.country_iso2}
+                                size={15}
+                            />
+                        )}
                     </View>
                     <Text style={{ fontSize: 15, color: '#707175', marginTop: 5 }}>
                         {countryData.product_coverage.country_name} eSim
