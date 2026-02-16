@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 
 const getServerUrl = () => {
-    return `http://192.168.0.100:5000`;
+    return `https://esimserver.onrender.com`;
 };
 
 
