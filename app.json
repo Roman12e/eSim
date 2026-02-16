@@ -51,6 +51,11 @@
               "NSPhotoLibraryUsageDescription": "Доступ к галерее нужен для выбора изображений.",
               "NSFaceIDUsageDescription": "Face ID используется для подтверждения платежей."
             }
+          },
+          "entitlements": {
+            "com.apple.developer.in-app-payments": [
+              "merchant.com.esimApp"
+            ]
           }
         }
       ],
