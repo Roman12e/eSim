@@ -8,18 +8,16 @@ import { useUser } from "../../../hooks/useUser";
 import PorgressBarUsage from "../../../shared/ui/ProgressBarUsage/ProgressBarUsage";
 import SimStatusLabel from "../../../shared/ui/SimStatusLabel/SimStatusLabel";
 
+
 function daysLeft(dateStr) {
+    if (!dateStr) return null;
     const [day, month, year] = dateStr.split('/').map(Number);
     const targetDate = new Date(year, month - 1, day);
     const today = new Date();
-
-    // обнуляем время
     targetDate.setHours(0, 0, 0, 0);
     today.setHours(0, 0, 0, 0);
-
-    const diffTime = targetDate - today; // разница в миллисекундах
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // в днях
-
+    const diffTime = targetDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
 }
 
@@ -27,15 +25,11 @@ function subtractMonth(dateStr) {
     if (!dateStr) return null;
     const [day, month, year] = dateStr.split('/').map(Number);
     const date = new Date(year, month - 1, day);
-
-    // вычитаем один месяц
     date.setMonth(date.getMonth() - 1);
-
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-    const formatted = `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
-    return formatted;
+    return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
 }
+
 
 export default function UserESim({ data, country, idx }) {
     const navigation = useNavigation();
@@ -50,13 +44,29 @@ export default function UserESim({ data, country, idx }) {
 
     const isInstall = user?.sims[idx]?.isInstall;
 
-    const creditDetails =
-        data?.simcardDetails?.data_credit_details?.[country];
+    const creditDetails = data?.simcardDetails?.data_credit_details;
 
-    const sim =
-        creditDetails && typeof creditDetails === "object"
-            ? Object.values(creditDetails)[0]
-            : null;
+    let sim = null;
+    let displayCountry = country;
+
+    if (creditDetails && Object.keys(creditDetails).length > 0) {
+        const firstKey = Object.keys(creditDetails)[0];
+        sim = Object.values(creditDetails[firstKey])[0];
+        displayCountry = firstKey;
+    } else {
+        sim = {
+            data_total: 0,
+            remaining_mb: 0,
+            product: {
+                duration: 0,
+                formatted_volume: "0",
+                next_renewal_label: null,
+                next_month: null
+            },
+            region: country,
+            iso: "UN"
+        };
+    }
 
     if (!sim || !qrcode) return null;
 
@@ -68,9 +78,9 @@ export default function UserESim({ data, country, idx }) {
 
     const duration = sim.product?.duration;
     const volumeLabel = sim.product?.formatted_volume;
-    const next_renewal = sim.product?.next_renewal_label;
-    const days_left = daysLeft(sim.product?.next_renewal_label);
-    const purchase_date = subtractMonth(sim.product?.next_month);
+    const next_renewal = sim.product?.next_renewal_label || null;
+    const days_left = next_renewal ? daysLeft(next_renewal) : null;
+    const purchase_date = sim.product?.next_month ? subtractMonth(sim.product.next_month) : null;
 
     const remainingPercent = Math.round((remainingMb * 100) / totalMb);
     const barColor = remainingPercent > 30 ? "#19b683" : "#d55860";
@@ -79,6 +89,7 @@ export default function UserESim({ data, country, idx }) {
         <TouchableOpacity
             onPress={() => navigation.navigate("ESimInfo/ESimInfo",
                 {
+                    isHasData: !!creditDetails && Object.keys(creditDetails).length > 0,
                     country: region,
                     status: status,
                     iso2: iso2,
@@ -117,6 +128,9 @@ export default function UserESim({ data, country, idx }) {
                 </View>
                 <Feather name="arrow-right" size={20} color="#9e9fa4" />
             </View>
+            {creditDetails.length === 0 ? <Text style={{ fontSize: 14, fontWeight: '400', color: '#68676d', marginTop: 10 }}>
+                eSIM is active, but no data available yet
+            </Text> : null}
         </TouchableOpacity>
     )
 }

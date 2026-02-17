@@ -14,7 +14,8 @@
     "production": {
       "autoIncrement": true,
       "ios": {
-        "simulator": false
+        "simulator": false,
+        "supportsTablet": false
       }
     }
   },

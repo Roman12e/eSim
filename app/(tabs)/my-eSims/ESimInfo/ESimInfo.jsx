@@ -19,6 +19,7 @@ import SimStatusLabel from "../../../shared/ui/SimStatusLabel/SimStatusLabel";
 export default function ESimInfo() {
     const route = useRoute();
     const {
+        isHasData,
         country,
         status,
         iso2,
@@ -58,6 +59,14 @@ export default function ESimInfo() {
             headerBackTitleVisible: true,
         });
     }, [navigation]);
+
+    if (!isHasData) {
+        return (
+            <View style={{ flex: 1, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ fontSize: 18, fontWeight: '500' }}>eSIM is active, but no data available yet</Text>
+            </View>
+        )
+    }
 
     const deleteSim = async () => {
         try {
@@ -134,7 +143,7 @@ export default function ESimInfo() {
                         <PercentageCircle
                             radius={65}
                             borderWidth={10}
-                            percent={Math.round(usedMb * 100 / totalMb)}
+                            percent={totalMb > 0 ? Math.round((usedMb * 100) / totalMb) : 0}
                             color={barColor}
                             bgcolor="#e7e8ea"
                         >
@@ -181,7 +190,11 @@ export default function ESimInfo() {
                                 <Feather name="activity" size={17} color="#9e9fa4" />
                                 <Text style={{ fontSize: 15.5, color: '#9e9fa4' }}>Days Remaining</Text>
                             </View>
-                            <Text>{days_left < 180 ? days_left.toString() + "days" : "Unlimited"}</Text>
+                            <Text>
+                                {days_left != null
+                                    ? (days_left < 180 ? days_left.toString() + " days" : "Unlimited")
+                                    : "N/A"}
+                            </Text>
                         </View>
                         <View style={styles.line} />
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>

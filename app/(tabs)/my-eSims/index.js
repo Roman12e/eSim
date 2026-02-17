@@ -11,7 +11,7 @@ import { useUser } from "../../hooks/useUser";
 
 
 const getServerUrl = () => {
-    return `http://192.168.0.100:5000`;
+    return 'https://esimserver.onrender.com';
 };
 
 const fetchActivate = async (iccid) => {
@@ -87,14 +87,21 @@ function MyEsims() {
 
                 const success = results
                     .map((r, i) => r.status === "fulfilled"
-                        ? { data: r.value, country: sims[i].product.country || getCountry(sims[i].product) }
+                        ? {
+                            data: r.value,
+                            country: sims[i].product.country || getCountry(sims[i].product)
+                        }
                         : null
                     )
                     .filter(Boolean);
 
+                if (success.length === 0) {
+                    Alert.alert("Something went wrong...", "Could not load eSIMs. Check network.");
+                    return;
+                }
+
                 setUserSims(success.map(s => s.data));
                 setCountries(success.map(s => s.country));
-                console.log(sims[0].product);
 
             } catch (err) {
                 console.log("SIM load error:", err);
@@ -110,7 +117,6 @@ function MyEsims() {
         return () => mounted = false;
 
     }, [user]);
-
 
     if (!isLoaded || loadingIndicator) {
         return (
