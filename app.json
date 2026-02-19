@@ -7,12 +7,7 @@
     "icon": "./logo/Logo.png",
     "scheme": "thebestesim",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": false,
-    "extra": {
-      "eas": {
-        "projectId": "7d087733-a8d9-44ad-8322-a78d4242d9ac"
-      }
-    },
+    "newArchEnabled": true,
     "ios": {
       "workflow": "managed",
       "autoProvisioning": true,

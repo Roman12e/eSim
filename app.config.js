@@ -6,8 +6,7 @@ export default {
     icon: "./logo/Logo.png",
     scheme: "thebestesim",
     userInterfaceStyle: "automatic",
-    newArchEnabled: false,
-
+    newArchEnabled: true,
     ios: {
         bundleIdentifier: "com.roman15e.thebestesim",
         supportsTablet: false,
@@ -23,7 +22,6 @@ export default {
             backgroundColor: "#ffffff"
         }
     },
-
     android: {
         adaptiveIcon: {
             backgroundColor: "#ffffff",
@@ -32,15 +30,13 @@ export default {
         edgeToEdgeEnabled: true,
         predictiveBackGestureEnabled: false
     },
-
     extra: {
-        eas: {
-            projectId: "7d087733-a8d9-44ad-8322-a78d4242d9ac"
+        "eas": {
+            "projectId": "6fb6c17d-5b48-440a-9960-487ae35270c7"
         },
         supabaseUrl: process.env.SUPABASE_URL,
         supabaseKey: process.env.SUPABASE_ANON_KEY
     },
-
     plugins: [
         [
             "expo-build-properties",
@@ -87,11 +83,9 @@ export default {
             }
         ]
     ],
-
     experiments: {
         typedRoutes: true,
         reactCompiler: true
     },
-
     owner: "roman12e"
 };
