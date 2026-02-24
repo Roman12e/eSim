@@ -22,15 +22,21 @@ function RegionList({ filteredCountry, isSearch, loadingIndicator }) {
                 <Text style={{ fontSize: 17, fontWeight: '600', marginBottom: 5 }}>All Regions</Text> : null}
             {!loadingIndicator && !isSearch
                 ? regionsData.map((r, index) => (
-                    <RegionLabel
-                        key={index}
-                        regionName={r.regionName}
-                        img={r.img}
-                        onPress={() => router.push({
-                            pathname: '/explore/regionCountries/RegionCountries',
-                            params: { countryName: r.regionName, isoCode: r.isoCode.toLowerCase() }
-                        })}
-                    />
+                    <View key={index}>
+                        {r.regionName === "Turkey+Georgia" ? null :
+                            <RegionLabel
+                                key={index}
+                                regionName={r.regionName === "caribbean-2002" ? "caribbean" : r.regionName}
+                                img={r.img}
+                                onPress={() => router.push({
+                                    pathname: '/explore/regionCountries/RegionCountries',
+                                    params: {
+                                        countryName: r.regionName === "caribbean-2002" ? "caribbean" : r.regionName,
+                                        isoCode: r.isoCode.toLowerCase()
+                                    }
+                                })}
+                            />}
+                    </View>
                 )) : null}
         </View>
     );

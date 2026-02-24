@@ -15,12 +15,15 @@ function CountryList({ filteredCountry, isSearch, loadingIndicator }) {
         );
     };
 
+    const sortedCountries = [...filteredCountry].sort((a, b) =>
+        a.country_name.localeCompare(b.country_name)
+    );
     return (
         <View style={{ width: '100%', gap: 15, marginBottom: 25 }}>
             {filteredCountry.length > 0 && !isSearch && !loadingIndicator ?
                 <Text style={{ fontSize: 17, fontWeight: '600', marginBottom: 5 }}>All Countries</Text> : null}
-            {filteredCountry && !loadingIndicator && filteredCountry.length > 0
-                ? filteredCountry.map((r, index) => (
+            {sortedCountries && !loadingIndicator && sortedCountries.length > 0
+                ? sortedCountries.map((r, index) => (
                     <CountryLabel
                         key={index}
                         countryTitle={r.country_name}

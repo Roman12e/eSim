@@ -18,6 +18,7 @@ function HeaderExplore({
     setLoadingIndicator
 }) {
     const [allCountries, setAllCountries] = useState([]);
+    const [destination, setDestination] = useState([]);
 
     const { data, loading, error } = useGetRegions(setLoadingIndicator);
 
@@ -27,8 +28,12 @@ function HeaderExplore({
 
     useEffect(() => {
         if (!loading && data) {
-            setAllCountries(data.slice(17));
-            setFilteredCountry(data.slice(17));
+            const popular = data.slice(10).filter(item => item.popularity_position <= 5 && item.popularity_position != null);
+            console.log(data.slice(10));
+
+            setDestination(popular);
+            setAllCountries(data.slice(10));
+            setFilteredCountry(data.slice(10));
         }
     }, [loading, data]);
 
@@ -65,7 +70,7 @@ function HeaderExplore({
             {!loadingIndicator && !isSearch ?
                 <View style={{ marginBottom: 25 }}>
                     <Text style={{ fontSize: 17, fontWeight: '600', marginTop: 25 }}>Popular Destinations</Text>
-                    <PopularDestinations data={destinationData} />
+                    <PopularDestinations data={destination} />
                 </View> : null}
         </View>
     )
