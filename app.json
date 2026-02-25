@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "The Best eSIM",
-    "slug": "TheBesteSIM",
+    "name": "TheBestEsim",
+    "slug": "TheBestEsim",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./logo/Logo.png",

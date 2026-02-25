@@ -1,5 +1,5 @@
 export default {
-    name: "The Best eSIM",
+    name: "TheBestEsim",
     slug: "thebestesim",
     version: "1.0.0",
     orientation: "portrait",
