@@ -19,7 +19,33 @@ export const useGetProducts = (countryName) => {
                 const res = await axios.get(`${getServerUrl()}/get-products`, {
                     params: { country: countryName }
                 });
-                setData(res.data.products);
+
+                if (countryName === "Europe") {
+                    const newProducts = res.data.products.map(product => {
+                        const coverage = product.product_coverage || [];
+
+                        const georgiaExists = coverage.some(
+                            c => c.country_iso2 === "GE"
+                        );
+
+                        if (!georgiaExists) {
+                            return {
+                                ...product,
+                                product_coverage: [
+                                    ...coverage,
+                                    {
+                                        country_iso2: "GE",
+                                        country_name: "Georgia"
+                                    }
+                                ]
+                            };
+                        }
+
+                        return product;
+                    });
+
+                    setData(newProducts);
+                }
             } catch (err) {
                 console.error(err);
                 setError(err.message);

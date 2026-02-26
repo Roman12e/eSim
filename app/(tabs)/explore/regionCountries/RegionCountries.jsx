@@ -23,7 +23,7 @@ export default function RegionCountries() {
     }
 
     useLayoutEffect(() => {
-        navigation.setOptions({ title: params.countryName })
+        navigation.setOptions({ title: params.countryName === "caribbean-2002" ? "caribbean" : params.countryName })
     }, [navigation]);
 
     if (loading) {
@@ -58,11 +58,15 @@ export default function RegionCountries() {
 
     const countriesArr = uniqueCountries();
 
+    const sortedCountries = [...countriesArr].sort((a, b) =>
+        a.country_name.localeCompare(b.country_name)
+    );
+
     return (
         <SafeAreaView style={{ backgroundColor: 'white', flex: 1, paddingHorizontal: 20 }} edges={['left', 'right']}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ marginTop: 20 }}>
                 <View style={{ width: "100%", gap: 15, marginBottom: 25 }}>
-                    {countriesArr.map(country => {
+                    {sortedCountries.map(country => {
                         const isoCode = country.country_iso2.toLowerCase();
                         const countryName = country.country_name;
                         return (

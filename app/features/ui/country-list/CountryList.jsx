@@ -18,6 +18,7 @@ function CountryList({ filteredCountry, isSearch, loadingIndicator }) {
     const sortedCountries = [...filteredCountry].sort((a, b) =>
         a.country_name.localeCompare(b.country_name)
     );
+
     return (
         <View style={{ width: '100%', gap: 15, marginBottom: 25 }}>
             {filteredCountry.length > 0 && !isSearch && !loadingIndicator ?

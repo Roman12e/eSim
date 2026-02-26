@@ -26,12 +26,12 @@ function RegionList({ filteredCountry, isSearch, loadingIndicator }) {
                         {r.regionName === "Turkey+Georgia" ? null :
                             <RegionLabel
                                 key={index}
-                                regionName={r.regionName === "caribbean-2002" ? "caribbean" : r.regionName}
+                                regionName={r.regionName}
                                 img={r.img}
                                 onPress={() => router.push({
                                     pathname: '/explore/regionCountries/RegionCountries',
                                     params: {
-                                        countryName: r.regionName === "caribbean-2002" ? "caribbean" : r.regionName,
+                                        countryName: r.regionName,
                                         isoCode: r.isoCode.toLowerCase()
                                     }
                                 })}

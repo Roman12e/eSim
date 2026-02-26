@@ -22,14 +22,9 @@ function HeaderExplore({
 
     const { data, loading, error } = useGetRegions(setLoadingIndicator);
 
-    const destinationData = data?.filter(item =>
-        ["US", "FR", "GB", "DE", "JP", "TH"].includes(item.country_iso2)
-    ) || [];
-
     useEffect(() => {
         if (!loading && data) {
             const popular = data.slice(10).filter(item => item.popularity_position <= 5 && item.popularity_position != null);
-            console.log(data.slice(10));
 
             setDestination(popular);
             setAllCountries(data.slice(10));
