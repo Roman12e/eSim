@@ -45,6 +45,8 @@ export const useGetProducts = (countryName) => {
                     });
 
                     setData(newProducts);
+                } else {
+                    setData(res.data.products)
                 }
             } catch (err) {
                 console.error(err);
