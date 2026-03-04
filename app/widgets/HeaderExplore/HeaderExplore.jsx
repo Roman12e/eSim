@@ -20,13 +20,14 @@ function HeaderExplore({
     const [allCountries, setAllCountries] = useState([]);
     const [destination, setDestination] = useState([]);
 
-    const { data, loading, error } = useGetRegions(setLoadingIndicator);
+    const { data, loading, error } = useGetRegions();
 
     useEffect(() => {
         if (!loading && data) {
             const popular = data.slice(10).filter(item => item.popularity_position <= 5 && item.popularity_position != null);
 
             setDestination(popular);
+            setLoadingIndicator(false);
             setAllCountries(data.slice(10));
             setFilteredCountry(data.slice(10));
         }

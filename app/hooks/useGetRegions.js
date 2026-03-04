@@ -7,7 +7,7 @@ const getServerUrl = () => {
 };
 
 
-export const useGetRegions = (setLoadingIndicator) => {
+export const useGetRegions = () => {
     const [data, setData] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -16,7 +16,6 @@ export const useGetRegions = (setLoadingIndicator) => {
         const fetchData = async () => {
             try {
                 setLoading(true);
-                setLoadingIndicator(true);
 
                 const url = `${getServerUrl()}/get-regions`;
                 const res = await axios.get(url);
@@ -27,7 +26,6 @@ export const useGetRegions = (setLoadingIndicator) => {
                 setError(err.message);
             } finally {
                 setLoading(false);
-                setLoadingIndicator(false);
             }
         };
 

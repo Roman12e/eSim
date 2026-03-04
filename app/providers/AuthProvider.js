@@ -31,7 +31,7 @@ function AuthProvider({ children }) {
                     name,
                     email,
                     currency: 'eur',
-                    language: "English",
+                    language: "en",
                     payment_methods: JSON.stringify({}),
                     purchase_history: JSON.stringify({}),
                     sims: JSON.stringify({}),
