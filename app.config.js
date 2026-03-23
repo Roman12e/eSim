@@ -31,8 +31,8 @@ export default {
         predictiveBackGestureEnabled: false
     },
     extra: {
-        "eas": {
-            "projectId": "6fb6c17d-5b48-440a-9960-487ae35270c7"
+        eas: {
+            projectId: "6fb6c17d-5b48-440a-9960-487ae35270c7"
         },
         supabaseUrl: process.env.SUPABASE_URL,
         supabaseKey: process.env.SUPABASE_ANON_KEY

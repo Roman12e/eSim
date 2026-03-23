@@ -1,5 +1,6 @@
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text } from "react-native";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
 
 import HeaderProfile from "../../features/ui/header-profile/HeaderProfile";
 import SignOutButton from "../../shared/ui/SignOutButton/SignOutButton";
@@ -14,21 +15,17 @@ function AccountScreen() {
     const router = useRouter();
 
     if (!user) {
-        Alert.alert(
-            "Error",
-            "You should log in",
-            [
-                { text: "Close" },
-                {
-                    text: "Log In",
-                    onPress: () => router.replace("/(auth)/login/")
-                }
-            ]
-        )
         return (
-            <SafeAreaView style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: 'white', flex: 1 }}>
-                <ActivityIndicator size="large" />
-            </SafeAreaView>
+            <View style={{ flex: 1, alignItems: 'center', backgroundColor: 'white', justifyContent: 'center' }}>
+                <Text style={{ fontSize: 18, fontWeight: '600', marginTop: 20 }}>Please log in or sign in</Text>
+                <Text style={{ color: '#6d6e70', width: '75%', textAlign: 'center', marginTop: 8, fontSize: 15 }} numberOfLines={2}>You need to log in or sign up to continue using the app.</Text>
+                <TouchableOpacity
+                    style={styles.loginBtn}
+                    onPress={() => router.replace("/(auth)/login/")}
+                >
+                    <Text style={{ fontSize: 18, fontWeight: '600', color: 'white' }}>Log in</Text>
+                </TouchableOpacity>
+            </View>
         )
     }
 
@@ -51,6 +48,24 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         flex: 1
     },
+    iconContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#f8f9fb',
+        borderRadius: 60,
+        width: 100,
+        height: 100,
+        marginTop: '15%'
+    },
+    loginBtn: {
+        width: 200,
+        height: 52,
+        backgroundColor: '#366bef',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 30,
+        marginTop: 20
+    }
 })
 
 

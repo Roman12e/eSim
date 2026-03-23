@@ -48,17 +48,18 @@ function MyEsims() {
     const { user, refetchUser } = useUser();
 
     if (!user) {
-        Alert.alert(
-            "Error",
-            "You should log in",
-            [
-                { text: "Close" },
-                {
-                    text: "Log In",
-                    onPress: () => router.replace("/(auth)/login/")
-                }
-            ]
-        );
+        return (
+            <View style={{ flex: 1, alignItems: 'center', backgroundColor: 'white', justifyContent: 'center' }}>
+                <Text style={{ fontSize: 18, fontWeight: '600', marginTop: 20 }}>Please log in or sign in</Text>
+                <Text style={{ color: '#6d6e70', width: '75%', textAlign: 'center', marginTop: 8, fontSize: 15 }} numberOfLines={2}>You need to log in or sign up to continue using the app.</Text>
+                <TouchableOpacity
+                    style={styles.loginBtn}
+                    onPress={() => router.replace("/(auth)/login/")}
+                >
+                    <Text style={{ fontSize: 18, fontWeight: '600', color: 'white' }}>Log in</Text>
+                </TouchableOpacity>
+            </View>
+        )
     }
 
     useEffect(() => {
@@ -183,6 +184,15 @@ const styles = StyleSheet.create({
     exploreBtn: {
         width: 160,
         height: 60,
+        backgroundColor: '#366bef',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 30,
+        marginTop: 20
+    },
+    loginBtn: {
+        width: 200,
+        height: 52,
         backgroundColor: '#366bef',
         justifyContent: 'center',
         alignItems: 'center',

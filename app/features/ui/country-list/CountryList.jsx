@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { ActivityIndicator, Text, View } from "react-native";
+import { Text, View } from "react-native";
 
 import CountryLabel from "../../../shared/ui/CountryLabel/CountryLabel";
 
@@ -36,8 +36,10 @@ function CountryList({ filteredCountry, isSearch, loadingIndicator }) {
                     />
                 ))
                 : (
-                    <View style={{ flex: 1, marginTop: '50%', alignItems: 'center', backgroundColor: 'white' }}>
-                        <ActivityIndicator size="large" />
+                    <View style={{ flex: 1, marginTop: '10%', alignItems: 'center', backgroundColor: 'white', gap: 30 }}>
+                        <View style={{ alignItems: 'center' }}>
+                            <Text style={{ fontSize: 16, color: '#6d6e70' }}>There is no such country...</Text>
+                        </View>
                     </View>
                 )}
         </View>

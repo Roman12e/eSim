@@ -1,6 +1,6 @@
 import { AntDesign, Feather, Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { useUser } from '../../../hooks/useUser';
 import HowWorksButton from '../../../shared/ui/HowWorksButton/HowWorksButton';
@@ -13,17 +13,7 @@ function CountryPlans({ data }) {
     const price = (data?.price * 1.5).toFixed(2);
 
     const checkIsAuth = () => {
-        if (!user) return Alert.alert(
-            "Error",
-            "You should log in",
-            [
-                { text: "Close" },
-                {
-                    text: "Log In",
-                    onPress: () => router.replace("/(auth)/login/")
-                }
-            ]
-        )
+        if (!user) return router.replace("/(auth)/login/")
 
         router.push({
             pathname: `/explore/howWorks/HowWorks`,
