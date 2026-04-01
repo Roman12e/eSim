@@ -32,8 +32,7 @@ const styles = StyleSheet.create({
         gap: 5,
         backgroundColor: '#fdf3f2',
         height: 55,
-        borderRadius: 20,
-        marginTop: 30
+        borderRadius: 20
     }
 })
 

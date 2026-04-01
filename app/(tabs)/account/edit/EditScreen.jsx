@@ -49,10 +49,6 @@ export default function EditScreen() {
 
     return (
         <View style={{ flex: 1, backgroundColor: 'white', paddingHorizontal: 20, alignItems: 'center' }}>
-            {/* <TouchableOpacity style={styles.avatarContainer}>
-                <Feather name="camera" size={30} color="#235ad8" />
-            </TouchableOpacity>
-            <Text style={{ flexDirection: 18, color: '#235ad8', marginBlock: 10 }}>Choose a photo</Text> */}
             <View style={styles.inputContainer}>
                 <TextInput
                     placeholder={user.name}

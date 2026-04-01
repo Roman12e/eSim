@@ -6,6 +6,7 @@ export default function AccountLayout() {
             <Stack.Screen name="index" options={{ headerShadowVisible: false, headerTitle: 'Account' }} />
             <Stack.Screen name="section/Section" options={{ headerShadowVisible: false }} />
             <Stack.Screen name="edit/EditScreen" options={{ headerShadowVisible: false }} />
+            <Stack.Screen name="deleteAccount/DeleteAccount" options={{ headerShadowVisible: false, headerTitle: "Delete Account" }} />
         </Stack>
     );
 }

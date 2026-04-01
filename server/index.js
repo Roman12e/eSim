@@ -340,6 +340,39 @@ app.post("/get-simcard-detail", async (req, res) => {
     }
 });
 
+app.post("/delete-account-request", async (req, res) => {
+    try {
+        const { email, phone } = req.body;
+
+        if (!phone) {
+            return res.status(400).json({ error: "Phone number is required" });
+        }
+
+        const response = await fetch(
+            "https://mvjgxrbkpehxbktbwgjd.supabase.co/functions/v1/handler",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${process.env.SUPABASE_KEY}`,
+                },
+                body: JSON.stringify({ email, phone }),
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            return res.status(500).json({ error: "Failed to send delete account request", details: data });
+        }
+
+        return res.status(200).json({ message: "Delete account request sent successfully", data });
+    } catch (error) {
+        console.error("Server error:", error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+});
+
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
