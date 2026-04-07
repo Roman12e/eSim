@@ -1,4 +1,4 @@
-import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { StyleSheet, Text, View } from "react-native";
 
 const HelpCenter = () => {
@@ -32,11 +32,7 @@ const ContactSupport = () => {
             <Text style={{ fontSize: 15, color: '#707175' }}>Our support team is availabel 24/7 to help you with any questions</Text>
             <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', marginTop: 15 }}>
                 <Feather name="mail" size={24} color="#2565e9" />
-                <Text style={{ fontSize: 15 }}>support@thebestsim.app</Text>
-            </View>
-            <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', marginTop: 15 }}>
-                <MaterialCommunityIcons name="chat-outline" size={24} color="#2565e9" />
-                <Text style={{ fontSize: 15 }}>Live Chat</Text>
+                <Text style={{ fontSize: 15 }}>info@thebestesim.com</Text>
             </View>
         </>
     );
