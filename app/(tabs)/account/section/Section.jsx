@@ -10,7 +10,6 @@ import SupportSection from "../../../widgets/SupportSection/SupportSection";
 import { useUser } from "../../../hooks/useUser";
 
 
-
 export default function Section() {
     const navigation = useNavigation();
     const route = useRoute();

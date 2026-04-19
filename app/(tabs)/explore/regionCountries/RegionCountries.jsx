@@ -10,7 +10,6 @@ import { handleError } from "../../../utils/handleError";
 import CountryLabel from "../../../shared/ui/CountryLabel/CountryLabel";
 
 
-
 export default function RegionCountries() {
     const { params } = useRoute();
 

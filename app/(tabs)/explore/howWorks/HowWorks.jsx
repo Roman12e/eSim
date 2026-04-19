@@ -19,8 +19,7 @@ import { stepData } from "./const/constants";
 
 
 const getServerUrl = () => {
-    return 'http://192.168.100.13:5000';
-    //return `https://esimserver.onrender.com`;
+    return `https://esimserver.onrender.com`;
 };
 
 const fetchPaymentSheetParams = async (countryData, currency, userId, planId) => {

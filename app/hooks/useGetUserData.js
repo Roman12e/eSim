@@ -4,7 +4,7 @@ import { supabase } from "../shared/api/supabase/supabaseConfig";
 
 
 export const useGetUserData = () => {
-    const [user, setUser] = useState(null); // данные пользователя
+    const [user, setUser] = useState(null);
     const [error, setError] = useState(null);
 
     useEffect(() => {
