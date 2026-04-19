@@ -1,12 +1,14 @@
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { useLayoutEffect } from "react";
-import { ActivityIndicator, Alert, ScrollView, View } from "react-native";
+import { ActivityIndicator, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useGetProducts } from "../../../hooks/useGetProducts";
+import { handleError } from "../../../utils/handleError";
 
 import CountryLabel from "../../../shared/ui/CountryLabel/CountryLabel";
+
 
 
 export default function RegionCountries() {
@@ -15,15 +17,14 @@ export default function RegionCountries() {
     const router = useRouter();
     const navigation = useNavigation();
 
-    const { data, loading, error } = useGetProducts(params.countryName);
+    const { data, loading, error, retry } = useGetProducts(params.countryName);
 
     if (error) {
-        Alert.alert("Oops... Something went wrong.", "Please try again in a moment.");
-        return null;
+        return handleError(error, retry);
     }
 
     useLayoutEffect(() => {
-        navigation.setOptions({ title: params.countryName === "caribbean-2002" ? "caribbean" : params.countryName })
+        navigation.setOptions({ title: params.countryName === "caribbean-2002" ? "Caribbean" : params.countryName })
     }, [navigation]);
 
     if (loading) {
@@ -76,9 +77,9 @@ export default function RegionCountries() {
                                 isoCode={isoCode}
                                 onPress={() =>
                                     router.push({
-                                        pathname: `/explore/listCountrySim/${country.country_name}`,
+                                        pathname: `/explore/listCountrySim/ListSim`,
                                         params: {
-                                            countryName: country.country_name,
+                                            countryName: countryName,
                                             isoCode,
                                         },
                                     })

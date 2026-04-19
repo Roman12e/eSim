@@ -99,8 +99,8 @@ export default function ESimInfo() {
 
     const handleDelete = () => {
         Alert.alert(
-            "Do you really want to delete",
-            "Do you really want to delete without the possibility of recovery",
+            "Do you really want to delete?",
+            "Do you really want to delete without the possibility of recovery?",
             [
                 {
                     text: "Yes",
@@ -220,9 +220,9 @@ export default function ESimInfo() {
                         contentFit="contain"
                         transition={200}
                     />
-                    <Text style={{ fontSize: 18, color: '#68676d', textAlign: 'center', width: '75%' }}>Scan qrcode to install eSim or do this mannually</Text>
+                    <Text style={{ fontSize: 18, color: '#68676d', textAlign: 'center', width: '75%' }}>Scan qrcode to install eSim or do it automatically</Text>
                     <TouchableOpacity style={styles.mannually} onPress={openLink}>
-                        <Text style={{ fontSize: 16, fontWeight: '600' }}>Mannually</Text>
+                        <Text style={{ fontSize: 16, fontWeight: '600' }}>Install</Text>
                     </TouchableOpacity>
                 </View>
             }

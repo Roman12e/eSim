@@ -7,7 +7,7 @@ function RegionLabel({ regionName, onPress, img }) {
         <TouchableOpacity style={styles.labelContainer} onPress={onPress}>
             <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
                 {img}
-                <Text style={{ fontSize: 15 }}>{regionName === "caribbean-2002" ? "caribbean" : regionName}</Text>
+                <Text style={{ fontSize: 15 }}>{regionName === "caribbean-2002" ? "Caribbean" : regionName}</Text>
             </View>
             <Feather name="arrow-right" size={20} color="#9e9fa4" />
         </TouchableOpacity>

@@ -1,4 +1,5 @@
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { useMemo } from "react";
 import { View } from "react-native";
 
 import ListCountrySim from "../../../widgets/ListCountrySim/ListCountrySim";
@@ -13,11 +14,19 @@ export default function TopNavigation({ data, loading }) {
         </View>
     }
 
-    const monthPlans = (data || []).filter(item => item.duration === 30);
-    const halfYearPlans = (data || []).filter(item => item.duration === 180);
+    const monthPlans = useMemo(
+        () => (data || []).filter(item => item.duration === 30).sort((a, b) => a.price - b.price),
+        [data]
+    );
+    const halfYearPlans = useMemo(
+        () => (data || []).filter(item => item.duration === 180).sort((a, b) => a.price - b.price),
+        [data]
+    );
 
-    monthPlans.sort((a, b) => a.price - b.price);
-    halfYearPlans.sort((a, b) => a.price - b.price);
+    const unlimitedPlans = useMemo(
+        () => (data || []).filter(item => item.unlimited === 1).sort((a, b) => a.price - b.price),
+        [data]
+    );
 
     return (
         <View style={{ flex: 1 }}>
@@ -35,6 +44,9 @@ export default function TopNavigation({ data, loading }) {
                 </TabBarTop.Screen>
                 <TabBarTop.Screen name="HalfYear" options={{ title: '180 days' }}>
                     {() => <ListCountrySim data={halfYearPlans} />}
+                </TabBarTop.Screen>
+                <TabBarTop.Screen name="Unlimited" options={{ title: 'Unlimited' }}>
+                    {() => <ListCountrySim data={unlimitedPlans} />}
                 </TabBarTop.Screen>
             </TabBarTop.Navigator>
         </View>

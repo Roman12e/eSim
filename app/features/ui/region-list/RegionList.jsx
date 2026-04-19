@@ -21,23 +21,28 @@ function RegionList({ filteredCountry, isSearch, loadingIndicator }) {
             {!isSearch && !loadingIndicator ?
                 <Text style={{ fontSize: 17, fontWeight: '600', marginBottom: 5 }}>All Regions</Text> : null}
             {!loadingIndicator && !isSearch
-                ? regionsData.map((r, index) => (
-                    <View key={index}>
-                        {r.regionName === "Turkey+Georgia" ? null :
-                            <RegionLabel
-                                key={index}
-                                regionName={r.regionName}
-                                img={r.img}
-                                onPress={() => router.push({
-                                    pathname: '/explore/regionCountries/RegionCountries',
-                                    params: {
-                                        countryName: r.regionName,
-                                        isoCode: r.isoCode.toLowerCase()
-                                    }
-                                })}
-                            />}
-                    </View>
-                )) : null}
+                ? regionsData.map((r, index) => {
+                    const region = r.regionName;
+                    const iso = r.isoCode.toLowerCase();
+                    const img = r.img;
+
+                    return (
+                        <View key={index}>
+                            {r.regionName === "Turkey+Georgia" ? null :
+                                <RegionLabel
+                                    key={index}
+                                    regionName={region}
+                                    img={img}
+                                    onPress={() => router.push({
+                                        pathname: '/explore/regionCountries/RegionCountries',
+                                        params: {
+                                            countryName: region,
+                                            isoCode: iso
+                                        }
+                                    })}
+                                />}
+                        </View>)
+                }) : null}
         </View>
     );
 };

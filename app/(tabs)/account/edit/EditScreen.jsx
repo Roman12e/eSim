@@ -3,6 +3,7 @@ import { ActivityIndicator, StyleSheet, Text, TextInput, View } from "react-nati
 
 import { useNavigation } from "@react-navigation/native";
 import { useUser } from "../../../hooks/useUser";
+import { handleError } from "../../../utils/handleError";
 
 import { supabase } from "../../../shared/api/supabase/supabaseConfig";
 
@@ -22,22 +23,27 @@ export default function EditScreen() {
     }, [navigation]);
 
     const safeData = async () => {
-        if (name || lang) {
+        if (!name && !lang) return;
+
+        try {
             const { data, error } = await supabase
                 .from("users")
-                .update({ name: name })
+                .update({ name })
                 .eq("id", user.id)
                 .select()
                 .single();
 
-            if (!error) {
-                setUser(data);
-                navigation.goBack();
-            } else {
-                console.log({ error });
+            if (error) {
+                return handleError(error);
             }
+
+            setUser(data);
+            navigation.goBack();
+
+        } catch (e) {
+            handleError(e);
         }
-    }
+    };
 
     if (!user) {
         return (

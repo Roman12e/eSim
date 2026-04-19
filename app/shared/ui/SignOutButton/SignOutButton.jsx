@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { Alert, StyleSheet, Text, TouchableOpacity } from "react-native";
 
 import { useAuth } from "../../../hooks/useAuth";
 
@@ -11,8 +11,20 @@ function SignOutButton() {
     const router = useRouter();
 
     const handlerOut = () => {
-        signOut();
-        router.replace('/(auth)/login/')
+        Alert.alert("Sign Out", "Are you sure you want to sign out?", [
+            {
+                text: "Cancel",
+                style: "cancel"
+            },
+            {
+                text: "Sign Out",
+                style: "destructive",
+                onPress: () => {
+                    signOut();
+                    router.replace('/(auth)/login/')
+                }
+            }
+        ])
     }
 
     return (

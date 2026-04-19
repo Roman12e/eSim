@@ -10,6 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { useGetProducts } from "../../../hooks/useGetProducts";
 import { useUser } from "../../../hooks/useUser";
+import { handleError } from "../../../utils/handleError";
 
 import BuyButton from "../../../shared/ui/BuyButton/BuyButton";
 import Step from "../../../shared/ui/Step/Step";
@@ -18,7 +19,8 @@ import { stepData } from "./const/constants";
 
 
 const getServerUrl = () => {
-    return `https://esimserver.onrender.com`;
+    return 'http://192.168.100.13:5000';
+    //return `https://esimserver.onrender.com`;
 };
 
 const fetchPaymentSheetParams = async (countryData, currency, userId, planId) => {
@@ -45,13 +47,13 @@ export default function PlanDetails() {
     const [isPaying, setIsPaying] = useState(false);
     const [paymentIntentId, setPaymentIntentId] = useState(null);
 
-    const { data } = useGetProducts(0, 0, params.countryName);
+    const { data } = useGetProducts(params.countryName);
     const { user, refetchUser } = useUser();
 
-    const planId = Number(params.id);
+    const planId = Number(params?.id);
     const countryData = data?.find((item) => item.id === planId);
 
-    const price = (countryData?.price * 1.5).toFixed(2);
+    const price = countryData?.price;
 
     useEffect(() => {
         if (!countryData || !user) return;
@@ -70,7 +72,7 @@ export default function PlanDetails() {
                 } = await fetchPaymentSheetParams(
                     countryData,
                     user.currency,
-                    user.id,
+                    user?.id,
                     planId
                 );
 
@@ -92,21 +94,14 @@ export default function PlanDetails() {
                     }
                 });
 
-                if (error) throw new Error(error.message);
+                if (error) {
+                    return handleError(error, () => navigation.goBack());
+                }
 
                 setPaymentIntentId(paymentIntentId);
                 setSheetReady(true);
             } catch (e) {
-                Alert.alert(
-                    "Oops... Something went wrong.",
-                    "Please try again in a moment.", [
-                    {
-                        text: "Ok",
-                        onPress: () => navigation.goBack()
-                    }
-                ]
-                );
-                console.log(e.message);
+                handleError(e, () => navigation.goBack());
             } finally {
                 isMounted && setInitializing(false);
             }
@@ -117,7 +112,7 @@ export default function PlanDetails() {
         return () => {
             isMounted = false;
         };
-    }, [countryData, user?.id]);
+    }, [countryData?.id, user?.id]);
 
 
     const openPaymentSheet = async () => {
@@ -126,19 +121,15 @@ export default function PlanDetails() {
             return;
         }
 
+        if (isPaying) return;
+
         try {
             setIsPaying(true);
 
             const { error } = await presentPaymentSheet();
 
             if (error) {
-                Alert.alert("Payment failed", "", [
-                    {
-                        text: "Ok",
-                        onPress: () => navigation.goBack()
-                    }
-                ]);
-                return;
+                return handleError(error, () => navigation.goBack());
             }
 
             const res = await fetch(`${getServerUrl()}/confirm-payment`, {
@@ -150,15 +141,18 @@ export default function PlanDetails() {
                 }),
             });
 
+            if (!res.ok) {
+                const text = await res.text();
+                return handleError(new Error(text), () => navigation.goBack());
+            }
+
             const result = await res.json();
 
             if (!result || result.error) {
-                Alert.alert("Error", result?.error || "Something went wrong.", [
-                    {
-                        text: "Ok",
-                        onPress: () => navigation.goBack()
-                    }
-                ]);
+                return handleError(
+                    result?.error ? new Error(result.error) : new Error("Payment confirmation failed"),
+                    () => navigation.goBack()
+                );
             }
 
             if (result.status === "active") {
@@ -192,13 +186,7 @@ export default function PlanDetails() {
             }
 
         } catch (e) {
-            console.error(e);
-            Alert.alert("Error", "Payment error occurred", [
-                {
-                    text: "Ok",
-                    onPress: () => navigation.goBack()
-                }
-            ]);
+            handleError(e, () => navigation.goBack());
         } finally {
             setIsPaying(false);
         }
@@ -227,16 +215,14 @@ export default function PlanDetails() {
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ marginTop: 30 }}>
                 <View style={styles.headerContainer}>
                     <View style={styles.row}>
-                        <Text style={{ fontSize: 20, fontWeight: '600' }}>{countryData.name}</Text>
-                        {countryData?.product_coverage?.country_iso2 && (
-                            <CountryFlag
-                                isoCode={countryData.product_coverage.country_iso2}
-                                size={15}
-                            />
-                        )}
+                        <CountryFlag isoCode={countryData.product_coverage[0].country_iso2} size={25} />
+                        <Text
+                            style={{ fontSize: 20, fontWeight: '600', flex: 1 }}
+                            numberOfLines={1}
+                        >{countryData.name}</Text>
                     </View>
                     <Text style={{ fontSize: 15, color: '#707175', marginTop: 5 }}>
-                        {countryData.product_coverage.country_name} eSim
+                        {countryData.product_coverage[0].country_name} eSim
                     </Text>
                     <View style={styles.priceRow}>
                         <Text style={{ fontSize: 25, fontWeight: '700', marginTop: 20 }}>
@@ -277,12 +263,12 @@ const styles = StyleSheet.create({
         backgroundColor: 'white'
     },
     headerContainer: {
-        width: '100%',
         paddingVertical: 30,
         paddingHorizontal: 20,
         backgroundColor: '#f8faf9',
         borderRadius: 20,
-        marginBottom: 20
+        marginBottom: 20,
+        gap: 10
     },
     row: {
         flexDirection: 'row',

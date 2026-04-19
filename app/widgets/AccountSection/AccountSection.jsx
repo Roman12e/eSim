@@ -4,9 +4,11 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View
 
 import { supabase } from "../../shared/api/supabase/supabaseConfig";
 
+import { handleError } from "../../utils/handleError";
 
-const PersonalInfo = ({ user, memberSince, name }) => {
-    if (!user || name === "") {
+
+const PersonalInfo = ({ user, memberSince }) => {
+    if (!user) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
                 <ActivityIndicator size="large" />
@@ -18,7 +20,7 @@ const PersonalInfo = ({ user, memberSince, name }) => {
         <View style={styles.container}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Text style={{ fontSize: 15, color: '#707175' }}>Name</Text>
-                <Text style={{ fontSize: 15 }}>{name}</Text>
+                <Text style={{ fontSize: 15 }}>{user?.name}</Text>
             </View>
             <View style={styles.line} />
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -99,46 +101,67 @@ const PurchaseHistory = ({ payments }) => {
 
 
 function AccountSection({ tag, user }) {
-    const memberSince = new Date(user?.created_at);
+    const memberSince = user?.created_at
+        ? new Date(user.created_at)
+        : null;
 
     const [payments, setPayments] = useState(null);
-    const [name, setName] = useState('');
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        let isMounted = true;
+
         const loadPayments = async () => {
-            const { data, error } = await supabase
-                .from("users")
-                .select("*")
-                .eq("id", user?.id)
-                .single();
+            try {
+                const { data, error } = await supabase
+                    .from("users")
+                    .select("name, purchase_history")
+                    .eq("id", user?.id)
+                    .single();
 
-            if (error) {
-                console.error(error);
-                setPayments([]);
-                setLoading(false);
-                return;
+                if (error) {
+                    handleError(error, loadPayments);
+                    if (!isMounted) return;
+                    setPayments([]);
+                    return;
+                }
+
+                if (!isMounted) return;
+
+                const rawPayments = data?.purchase_history?.payments;
+
+                setPayments(Array.isArray(rawPayments) ? rawPayments : []);
+
+            } catch (e) {
+                handleError(e, loadPayments);
+            } finally {
+                if (isMounted) setLoading(false);
             }
-
-            const rawPayments = data?.purchase_history?.payments;
-            const userName = data?.name;
-
-            setName(userName);
-            setPayments(Array.isArray(rawPayments) ? rawPayments : []);
-            setLoading(false);
         };
 
         if (user?.id) loadPayments();
+
+        return () => {
+            isMounted = false;
+        };
     }, [user?.id]);
+
+    if (loading) {
+        return <ActivityIndicator />;
+    }
 
     return (
         <>
-            {tag === "personal-info" ? <PersonalInfo user={user} name={name} memberSince={memberSince} /> : null}
-            {tag === "payment-methods" ? <PaymentMethods /> : null}
-            {tag === "purchase-history" ? <PurchaseHistory payments={payments} /> : null}
+            {tag === "personal-info" && (
+                <PersonalInfo user={user} memberSince={memberSince} />
+            )}
+            {tag === "payment-methods" && <PaymentMethods />}
+            {tag === "purchase-history" && (
+                <PurchaseHistory payments={payments} />
+            )}
         </>
     );
-};
+}
 
 
 const styles = StyleSheet.create({

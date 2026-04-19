@@ -15,7 +15,7 @@ const PrivacyPolicy = () => {
 const TermsService = () => {
     return (
         <>
-            <Text style={{ fontSize: 16, color: '#707175' }}>By using The Best eSIM? you agree to our terms of service. We provide reliable eSIM services for travelers worldwide.</Text>
+            <Text style={{ fontSize: 16, color: '#707175' }}>By using The Best eSIM you agree to our terms of service. We provide reliable eSIM services for travelers worldwide.</Text>
             <Text style={{ color: '#acacb6', marginTop: 15 }}>Last updated: December 2024</Text>
         </>
     );

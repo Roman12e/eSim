@@ -10,14 +10,12 @@ function CountryPlans({ data }) {
     const router = useRouter();
     const { user } = useUser();
 
-    const price = (data?.price * 1.5).toFixed(2);
-
     const checkIsAuth = () => {
         if (!user) return router.replace("/(auth)/login/")
 
         router.push({
             pathname: `/explore/howWorks/HowWorks`,
-            params: { id: data.id, countryName: data.product_coverage.country_name }
+            params: { id: data.id, countryName: data.product_coverage[0].country_name }
         })
     }
 
@@ -25,14 +23,14 @@ function CountryPlans({ data }) {
         <View style={styles.planContainer}>
             <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row' }}>
                 <Text style={{ fontSize: 20, fontWeight: '600' }}>{data.volume >= 1024 ? data.volume / 1024 + " GB" : data.volume + " MB"}</Text>
-                <Text style={{ fontSize: 20, fontWeight: '600', color: '#2565e9' }}>€{price}</Text>
+                <Text style={{ fontSize: 20, fontWeight: '600', color: '#2565e9' }}>€{data.price}</Text>
             </View>
             <Text style={{ fontSize: 15, color: '#707175', marginTop: 5 }}>{data.name}</Text>
             <View style={styles.line} />
             <View style={{ gap: 8 }}>
                 <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
                     <Ionicons name="pricetag-outline" size={17} color="#2565e9" />
-                    <Text style={{ fontSize: 16.5, color: '#707175' }}>€{price}</Text>
+                    <Text style={{ fontSize: 16.5, color: '#707175' }}>€{data.price}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
                     <AntDesign name="clock-circle" size={17} color="#2565e9" />

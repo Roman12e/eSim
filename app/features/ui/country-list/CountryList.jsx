@@ -30,7 +30,7 @@ function CountryList({ filteredCountry, isSearch, loadingIndicator }) {
                         countryTitle={r.country_name}
                         isoCode={r.country_iso2.toLowerCase()}
                         onPress={() => router.push({
-                            pathname: `/explore/listCountrySim/${r.country_name}`,
+                            pathname: `/explore/listCountrySim/ListSim`,
                             params: { countryName: r.country_name, isoCode: r.country_iso2.toLowerCase() }
                         })}
                     />

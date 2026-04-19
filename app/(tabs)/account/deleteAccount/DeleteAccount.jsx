@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 import { useAuth } from "../../../hooks/useAuth";
+import { handleError } from "../../../utils/handleError";
+
 
 export default function DeleteAccount() {
     const [phoneNumber, setPhoneNumber] = useState("");
@@ -29,8 +31,9 @@ export default function DeleteAccount() {
             const data = await res.json();
 
             if (!res.ok) {
-                Alert.alert("Something went wrong...", "Failed to send delete account request. Please try again later.");
-                console.log(data);
+                return handleError(
+                    new Error(data?.error || "Failed to send delete request")
+                );
             }
 
             Alert.alert("Success", "Request sent successfully!");

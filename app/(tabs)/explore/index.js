@@ -3,6 +3,7 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-nat
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useGetRegions } from "../../hooks/useGetRegions";
+import { handleError } from "../../utils/handleError";
 
 import CountryList from "../../features/ui/country-list/CountryList";
 import RegionList from "../../features/ui/region-list/RegionList";
@@ -10,7 +11,7 @@ import HeaderExplore from "../../widgets/HeaderExplore/HeaderExplore";
 
 
 function ExploreScreen() {
-    const { data, loading, error } = useGetRegions();
+    const { data, loading, error, retry } = useGetRegions();
 
     const [filteredCountry, setFilteredCountry] = useState([]);
     const [isSearch, setIsSearch] = useState(false);
@@ -22,16 +23,11 @@ function ExploreScreen() {
         }
     }, [data]);
 
-    if (error) {
-        return (
-            <View style={{ alignItems: 'center', marginTop: 20 }}>
-                <Text>Failed to load countries</Text>
-                <TouchableOpacity onPress={retry}>
-                    <Text>Retry</Text>
-                </TouchableOpacity>
-            </View>
-        );
-    }
+    useEffect(() => {
+        if (error) {
+            return handleError(error, retry);
+        }
+    }, [error]);
 
     return (
         <SafeAreaView style={styles.container} edges={['left', 'right']}>
@@ -46,8 +42,9 @@ function ExploreScreen() {
                     isSearch={isSearch}
                 />
                 <View style={{ alignItems: 'center', gap: 30, marginTop: '45%' }}>
-                    <Text style={{ fontSize: 18, fontWeight: '500' }}>Loading countries...</Text>
                     <ActivityIndicator size="large" />
+                    <Text style={{ fontSize: 18, fontWeight: '500' }}>Loading countries...</Text>
+                    <Text style={{ fontSize: 14, color: 'gray', textAlign: 'center' }}>If loading takes too long, please turn off vpn or check your internet connection.</Text>
                 </View>
             </View> :
                 <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ marginTop: 20 }}>
@@ -81,7 +78,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         paddingHorizontal: 20,
         flex: 1
-    },
+    }
 })
 
 

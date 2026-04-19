@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 
 
 const getServerUrl = () => {
-    return `https://esimserver.onrender.com`;
+    return 'http://192.168.100.13:5000';
+    //return `https://esimserver.onrender.com`;
 };
 
 
@@ -22,7 +23,7 @@ export const useGetRegions = () => {
             setData(res.data?.areas);
         } catch (err) {
             console.error(err);
-            setError(err.message);
+            setError(err);
         } finally {
             setLoading(false);
         }

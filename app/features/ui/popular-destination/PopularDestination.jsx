@@ -16,7 +16,7 @@ function PopularDestinations({ data }) {
                         countryName={item.country_name}
                         key={index}
                         onPress={() => router.push({
-                            pathname: `/explore/listCountrySim/${item.country_name}`,
+                            pathname: `/explore/listCountrySim/ListSim`,
                             params: { countryName: item.country_name, isoCode: item.country_iso2.toLowerCase() }
                         })}
                     />

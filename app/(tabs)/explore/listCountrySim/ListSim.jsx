@@ -1,14 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
 import { useNavigation } from "expo-router";
-import { useLayoutEffect } from "react";
-import { ActivityIndicator, Alert, StyleSheet, Text, View } from "react-native";
+import { useEffect, useLayoutEffect } from "react";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import CountryFlag from "react-native-country-flag";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import TopNavigation from "./TopNavigation";
 
 import { useGetProducts } from "../../../hooks/useGetProducts";
+import { handleError } from "../../../utils/handleError";
 
 
 export default function ListSim() {
@@ -17,19 +18,22 @@ export default function ListSim() {
 
     const { data, loading, error } = useGetProducts(params.countryName);
 
-    if (error) {
-        Alert.alert("Oops... Something went wrong.", "Please try again in a moment.");
-        return null;
-    }
+    useEffect(() => {
+        if (error) {
+            return handleError(error);
+        }
+    }, [error]);
 
     useLayoutEffect(() => {
         navigation.setOptions({ title: params.countryName })
     }, [navigation]);
 
     if (!data || loading) {
-        return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-            <ActivityIndicator size="large" />
-        </View>
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
+                <ActivityIndicator size="large" />
+            </View>
+        );
     }
 
     return (

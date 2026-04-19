@@ -11,7 +11,7 @@ export default function ExploreLayout() {
                     title: "The Best eSIM",
                 }} />
             <Stack.Screen
-                name="listCountrySim/[listSim]"
+                name="listCountrySim/ListSim"
                 options={{
                     headerBackTitle: "Explore",
                     headerShown: true,

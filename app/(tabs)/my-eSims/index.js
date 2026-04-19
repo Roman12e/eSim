@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import UserESim from "../../features/ui/user-eSim/UserESim";
@@ -8,6 +8,7 @@ import UserESim from "../../features/ui/user-eSim/UserESim";
 import { useNavigation } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { useUser } from "../../hooks/useUser";
+import { handleError } from "../../utils/handleError";
 
 
 const getServerUrl = () => {
@@ -70,7 +71,13 @@ function MyEsims() {
     }, [])
 
     useEffect(() => {
-        if (!user?.sims) return;
+        if (!Array.isArray(user?.sims) || user.sims.length === 0) {
+            setUserSims([]);
+            setCountries([]);
+            setLoadingIndicator(false);
+            setIsLoaded(true);
+            return;
+        }
 
         let mounted = true;
 
@@ -79,6 +86,14 @@ function MyEsims() {
 
             try {
                 const sims = user.sims.filter(s => s?.iccid);
+
+                if (sims.length === 0) {
+                    setUserSims([]);
+                    setCountries([]);
+                    setIsLoaded(true);
+                    setLoadingIndicator(false);
+                    return;
+                }
 
                 const results = await Promise.allSettled(
                     sims.map(sim => fetchActivate(sim.iccid))
@@ -96,16 +111,17 @@ function MyEsims() {
                     )
                     .filter(Boolean);
 
-                if (success.length === 0) {
-                    Alert.alert("Something went wrong...", "Could not load eSIMs. Check network.");
-                    return;
+                if (sims.length > 0 && success.length === 0) {
+                    return handleError(new Error("Failed to load eSIMs"));
                 }
 
                 setUserSims(success.map(s => s.data));
                 setCountries(success.map(s => s.country));
 
             } catch (err) {
-                console.log("SIM load error:", err);
+                console.log(err);
+
+                handleError(err);
             }
 
             if (mounted) {
