@@ -27,3 +27,23 @@ export async function getRegionsController(req, res) {
         res.status(500).json({ error: err.message });
     }
 }
+
+export async function getSimCardDetailController(req, res) {
+    try {
+        const { iccid } = req.body;
+
+        if (!iccid) {
+            return res.status(400).json({ error: "iccid is required" });
+        }
+
+        const data = await getSimCardDetail(iccid);
+        res.json(data);
+    } catch (err) {
+        console.error({
+            status: response.status,
+            statusText: response.statusText,
+            body: await response.text()
+        });
+        res.status(500).json({ error: err.message });
+    }
+};
