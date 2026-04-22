@@ -20,7 +20,6 @@ export async function getProducts(country) {
 
     if (!response.ok) {
         console.error({
-            status: response.status,
             statusText: response.statusText,
             body: await response.text()
         });
@@ -42,7 +41,6 @@ export async function getRegions() {
 
     if (!res.ok) {
         console.error({
-            status: res.status,
             statusText: res.statusText,
             body: await res.text()
         });
@@ -71,7 +69,6 @@ export async function getSimCardDetail(iccid) {
 
     if (!response.ok) {
         console.error({
-            status: response.status,
             statusText: response.statusText,
             body: await response.text()
         });

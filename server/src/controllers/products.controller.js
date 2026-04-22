@@ -40,7 +40,6 @@ export async function getSimCardDetailController(req, res) {
         res.json(data);
     } catch (err) {
         console.error({
-            status: response.status,
             statusText: response.statusText,
             body: await response.text()
         });
