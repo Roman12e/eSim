@@ -1,4 +1,4 @@
-import { getProducts, getRegions } from "../services/bnesim.service.js";
+import { getProducts, getRegions, getSimCardDetail } from "../services/bnesim.service.js";
 import { filterPlans } from "../utils/filters.js";
 
 export async function getProductsController(req, res) {
@@ -39,10 +39,7 @@ export async function getSimCardDetailController(req, res) {
         const data = await getSimCardDetail(iccid);
         res.json(data);
     } catch (err) {
-        console.error({
-            statusText: response.statusText,
-            body: await response.text()
-        });
+        console.log(err);
         res.status(500).json({ error: err.message });
     }
 };

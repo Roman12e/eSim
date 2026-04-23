@@ -112,8 +112,14 @@ export const handleError = (error, retry) => {
                 return;
             }
 
-            Alert.alert("Error", message);
-            return;
+            if (message.includes("Failed to load eSIMs")) {
+                Alert.alert(
+                    "Failed to load eSIMs",
+                    "Could not load eSIM information. Please try again.",
+                    [{ text: "Retry", onPress: retry }]
+                );
+                return;
+            }
         }
     }
 

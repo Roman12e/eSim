@@ -112,7 +112,7 @@ function MyEsims() {
                     .filter(Boolean);
 
                 if (sims.length > 0 && success.length === 0) {
-                    return handleError(new Error("Failed to load eSIMs"));
+                    return handleError(new Error("Failed to load eSIMs"), refetchUser);
                 }
 
                 setUserSims(success.map(s => s.data));
@@ -120,8 +120,7 @@ function MyEsims() {
 
             } catch (err) {
                 console.log(err);
-
-                handleError(err);
+                handleError(err, refetchUser);
             }
 
             if (mounted) {
